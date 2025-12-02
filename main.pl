@@ -124,3 +124,54 @@ avance_diag2(Board, L, C, P, Acc, Count) :-
     Acc1 is Acc + 1,
     avance_diag2(Board, L1, C1, P, Acc1, Count).
 avance_diag2(_, _, _, _, Count, Count).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Plateau plein
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+plateau_plein(Board) :-
+    \+ colonne_disponible(Board, _). %% Négation de l'existence d'une colonne disponible
+
+colonne_disponible(Board, NumCol) :- 
+    between(1, 7, NumCol), % Teste les colonnes de 1 à 7
+    nth1(NumCol, Board, Colonne), % Récupère la colonne correspondante
+    length(Colonne, Hauteur), % Calcule la hauteur de la colonne
+    Hauteur < 6. % Vérifie si la colonne n'est pas pleine
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Changer de joueur
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+changePlayer(x, o).
+changePlayer(o, x).
+
+play(Player):- 
+    board(Board), % récupère le plateau depuis la base de connaissances
+    affiche_plateau(Board), % affiche le plateau
+    
+    % Vérifie d'abord si le plateau est plein (match nul)
+    (plateau_plein(Board) -> 
+        writeln('Draw! Board is full.'), !
+    ; 
+        % Le jeu continue - le joueur actuel joue
+        write('New turn for: '), writeln(Player),
+        choisir_coup(Board, Player, Colonne), % demande le coup (IA ou humain)
+        jouer_coup(Board, Colonne, Player, NewBoard), % joue le coup
+        retract(board(Board)), % retire l'ancien plateau
+        assert(board(NewBoard)), % stocke le nouveau plateau
+        
+        % Vérifie si ce joueur vient de gagner
+        (win(NewBoard) -> 
+            affiche_plateau(NewBoard),
+            write('Player '), write(Player), writeln(' wins!'), !
+        ;
+            % Continue avec le joueur suivant
+            changePlayer(Player, NextPlayer),
+            play(NextPlayer)
+        )
+    ).
+
+%%%%% Start the game! 
+init :- 
+    plateau_initial(Board), 
+    assert(board(Board)), 
+    writeln('=== Puissance 4 ==='),
+    play(x).
