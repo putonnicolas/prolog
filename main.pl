@@ -6,10 +6,11 @@ plateau_initial([
     [], [], [], [], [], [], []
 ]).
 
-piece_a(Board, Ligne, Colonne, Piece) :-
-    nth1(Colonne, Board, Col),
-    nth1(Ligne, Col, Piece), !.
-piece_a(_, _, _, vide) :- !.
+piece_a(Board, NumLigne, NumColonne, Piece) :-
+    nth1(NumColonne, Board, Colonne),
+    nth1(NumLigne, Colonne, Piece),
+    !.
+piece_a(_, _, _, vide) :- !. % Si on n'a pas trouvé de pièce, c'est que la case est vide
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Affichage du plateau
