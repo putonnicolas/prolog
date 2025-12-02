@@ -43,6 +43,22 @@ affiche_lignes(Board, Ligne) :-
     affiche_lignes(Board, Ligne1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Jouer un coup
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+jouer_coup(Board, NumColonne, Player, NewBoard) :-
+    nth1(NumColonne, Board, Colonne),
+    length(Colonne, Hauteur),
+    Hauteur < 6, % Vérifier que le coup peut être joué
+    append(Colonne, [Player], NewColonne),
+    replace_colonne(Board, NewBoard, NumColonne, NewColonne).
+
+replace_colonne([_ | T], [NewColonne | T], 1, NewColonne).
+replace_colonne([HToKeep | Tail], [HToKeep | NewTail], NumColonne, NewColonne) :-
+    NewNum is NumColonne - 1,
+    replace_colonne(Tail, NewTail, NewNum, NewColonne).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Victoire d'un joueur
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 win(Board) :- 
