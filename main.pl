@@ -123,27 +123,33 @@ colonne_disponible(Board, NumCol) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Changer de joueur
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-changePlayer('x', 'o').
-changePlayer('o', 'x').
+changePlayer(x, o).
+changePlayer(o, x).
 
 play(Player):- 
-    write('New turn for: '), writeln(Player),
     board(Board), % récupère le plateau depuis la base de connaissances
     affiche_plateau(Board), % affiche le plateau
     
-    % Vérifie si le jeu est terminé
-    (victoire(Board, Player) -> 
-        write('Player '), write(Player), writeln(' wins!'), !
-    ; plateau_plein(Board) -> 
+    % Vérifie d'abord si le plateau est plein (match nul)
+    (plateau_plein(Board) -> 
         writeln('Draw! Board is full.'), !
     ; 
-        % Le jeu continue
+        % Le jeu continue - le joueur actuel joue
+        write('New turn for: '), writeln(Player),
         choisir_coup(Board, Player, Colonne), % demande le coup (IA ou humain)
         jouer_coup(Board, Colonne, Player, NewBoard), % joue le coup
         retract(board(Board)), % retire l'ancien plateau
         assert(board(NewBoard)), % stocke le nouveau plateau
-        changePlayer(Player, NextPlayer), % change de joueur
-        play(NextPlayer) % tour suivant
+        
+        % Vérifie si ce joueur vient de gagner
+        (win(NewBoard) -> 
+            affiche_plateau(NewBoard),
+            write('Player '), write(Player), writeln(' wins!'), !
+        ;
+            % Continue avec le joueur suivant
+            changePlayer(Player, NextPlayer),
+            play(NextPlayer)
+        )
     ).
 
 %%%%% Start the game! 
