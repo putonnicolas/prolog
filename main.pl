@@ -107,3 +107,48 @@ win_diago_sens2(Board) :-
     piece_a(Board, Ligne3, Col3, P3),
     piece_a(Board, Ligne4, Col4, P4),
     alignees(P1, P2, P3, P4).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Plateau plein
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+plateau_plein(Board) :-
+    \+ colonne_disponible(Board, _). %% Négation de l'existence d'une colonne disponible
+
+colonne_disponible(Board, NumCol) :- 
+    between(1, 7, NumCol), % Teste les colonnes de 1 à 7
+    nth1(NumCol, Board, Colonne), % Récupère la colonne correspondante
+    length(Colonne, Hauteur), % Calcule la hauteur de la colonne
+    Hauteur < 6. % Vérifie si la colonne n'est pas pleine
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Changer de joueur
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+changePlayer('x', 'o').
+changePlayer('o', 'x').
+
+play(Player):- 
+    write('New turn for: '), writeln(Player),
+    board(Board), % récupère le plateau depuis la base de connaissances
+    affiche_plateau(Board), % affiche le plateau
+    
+    % Vérifie si le jeu est terminé
+    (victoire(Board, Player) -> 
+        write('Player '), write(Player), writeln(' wins!'), !
+    ; plateau_plein(Board) -> 
+        writeln('Draw! Board is full.'), !
+    ; 
+        % Le jeu continue
+        choisir_coup(Board, Player, Colonne), % demande le coup (IA ou humain)
+        jouer_coup(Board, Colonne, Player, NewBoard), % joue le coup
+        retract(board(Board)), % retire l'ancien plateau
+        assert(board(NewBoard)), % stocke le nouveau plateau
+        changePlayer(Player, NextPlayer), % change de joueur
+        play(NextPlayer) % tour suivant
+    ).
+
+%%%%% Start the game! 
+init :- 
+    plateau_initial(Board), 
+    assert(board(Board)), 
+    writeln('=== Puissance 4 ==='),
+    play(x).
