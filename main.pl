@@ -49,15 +49,20 @@ affiche_lignes(Board, Ligne) :-
 %% Choisir un coup
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-choisir_coup(Board, Player, Colonne) :-
-    write('Player '), write(Player), write(', choose a column (1-7): '),
+choisir_coup(Board, x, Colonne) :-
+    % Joueur humain (X)
+    write('Player x, choose a column (1-7): '),
     read(Colonne),
     (colonne_disponible(Board, Colonne) ->
         true
     ;
         writeln('Invalid move! Try again.'),
-        choisir_coup(Board, Player, Colonne)
+        choisir_coup(Board, x, Colonne)
     ).
+
+choisir_coup(Board, o, Colonne) :-
+    % IA (O)
+    ia(Board, Colonne).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -218,9 +223,9 @@ play(Player):-
 %% IA aléatoire
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ia(Board):- 
+ia(Board, Move):- 
     repeat,                          % recommencer jusqu'à ce qu'on trouve
-    random(0, 8, Move),              
+    random(1, 8, Move),              % entre 1 et 7 (8 exclu)
     colonne_disponible(Board, Move),  % si la colonne est dispo
     write('IA plays column: '), writeln(Move),
     !.   							 % break
