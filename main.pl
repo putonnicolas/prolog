@@ -189,6 +189,18 @@ play(Player):-
         )
     ).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IA aléatoire
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ia(Board):- 
+    repeat,                          % recommencer jusqu'à ce qu'on trouve
+    random(0, 8, Move),              
+    colonne_disponible(Board, Move),  % si la colonne est dispo
+    write('IA plays column: '), writeln(Move),
+    !.   							 % break
+
+
 %%%%% Start the game! 
 init :- 
     plateau_initial(Board), 
