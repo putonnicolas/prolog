@@ -42,6 +42,10 @@ affiche_lignes(Board, Ligne) :-
     Ligne1 is Ligne - 1,
     affiche_lignes(Board, Ligne1).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Victoire
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 win(Board, Ligne, Colonne) :- 
     win_ligne(Board, Ligne); 
     win_colonne(Board, Colonne); 
