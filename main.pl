@@ -2,6 +2,8 @@
 %% Fonctions utiles au plateau de jeu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- dynamic board/1. % Permet l'assertion et le retrait de faits board/1
+
 plateau_initial([
     [], [], [], [], [], [], []
 ]).
@@ -44,6 +46,21 @@ affiche_lignes(Board, Ligne) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Choisir un coup
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+choisir_coup(Board, Player, Colonne) :-
+    write('Player '), write(Player), write(', choose a column (1-7): '),
+    read(Colonne),
+    (colonne_disponible(Board, Colonne) ->
+        true
+    ;
+        writeln('Invalid move! Try again.'),
+        choisir_coup(Board, Player, Colonne)
+    ).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Jouer un coup
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -62,6 +79,12 @@ replace_colonne([HToKeep | Tail], [HToKeep | NewTail], NumColonne, NewColonne) :
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Victoire
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+win(Board) :- 
+    between(1, 6, Ligne),
+    between(1, 7, Colonne),
+    win(Board, Ligne, Colonne).
+
 win(Board, Ligne, Colonne) :- 
     win_ligne(Board, Ligne); 
     win_colonne(Board, Colonne); 
@@ -95,6 +118,7 @@ win_colonne(Board, Colonne) :-
 
 win_diago_sens1(Board, Ligne, Colonne) :-
     piece_a(Board, Ligne, Colonne, P),
+    P \= vide,  % La pièce ne doit pas être vide
     recule_diag1(Board, Ligne, Colonne, P, L0, C0),
     compte_diag1(Board, L0, C0, P, Compte),
     Compte >= 4.
@@ -121,6 +145,7 @@ avance_diag1(_, _, _, _, Count, Count).
 
 win_diago_sens2(Board, Ligne, Colonne) :-
     piece_a(Board, Ligne, Colonne, P),
+    P \= vide,  % La pièce ne doit pas être vide
     recule_diag2(Board, Ligne, Colonne, P, L0, C0),
     compte_diag2(Board, L0, C0, P, Compte),
     Compte >= 4.
