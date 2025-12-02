@@ -1,3 +1,7 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Fonctions utiles au plateau de jeu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 plateau_initial([
     [], [], [], [], [], [], []
 ]).
@@ -7,6 +11,9 @@ piece_a(Board, Ligne, Colonne, Piece) :-
     nth1(Ligne, Col, Piece), !.
 piece_a(_, _, _, vide) :- !.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Affichage du plateau
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 symbole(vide, '_').
 symbole(x, 'X').
 symbole(o, 'O').
@@ -16,7 +23,7 @@ affiche_ligne(Board, Ligne) :-
     affiche_colonnes(Board, Ligne, 1),
     write('|'), nl.
 
-affiche_colonnes(_, _, 8) :- !. % stop après la 7e colonne
+affiche_colonnes(_, _, 8) :- !.
 affiche_colonnes(Board, Ligne, Col) :-
     piece_a(Board, Ligne, Col, P),
     symbole(P, S),
