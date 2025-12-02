@@ -56,18 +56,6 @@ Chaque fois que vous sauvegardez le fichier et voulez le recharger :
 make.
 ```
 
-ou :
-
-```
-[All].
-```
-
-ou encore :
-
-```
-reload_file.
-```
-
 ---
 
 ## 🛑 6. Quitter Prolog
