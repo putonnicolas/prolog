@@ -255,7 +255,7 @@ ia(Board, Move) :-
 
     % Si l’humain a joué sur la colonne cible = on change
     ( last_human_move(Target) ->
-        write('Human blocked my column, choosing new target...'), nl,
+        write('Le humain vient de bloquer ma colonne je change de place'), nl,
         choose_new_target(Board, NewTarget),
         retractall(ia_target(_)),
         assert(ia_target(NewTarget)),
@@ -266,11 +266,11 @@ ia(Board, Move) :-
       % Sinon on essaie de jouer la colonne cible
       colonne_disponible(Board, Target) ->
         Move = Target,
-        write('IA plays preferred column: '), writeln(Target), !
+        write('La IA joue dans sa colonne pref : '), writeln(Target), !
     ;
 
       % Si la colonne cible est pleine on change
-      write('Preferred column full, selecting new one...'), nl,
+      write('La colonne pref est pleine, je choisis une nouvelle'), nl,
       choose_new_target(Board, NewTarget),
       retractall(ia_target(_)),
       assert(ia_target(NewTarget)),
