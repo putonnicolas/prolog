@@ -239,6 +239,10 @@ ia_random(Board, Move):-
     write('IA joue la colonne : '), writeln(Move),
     !.   							 % break
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IA naive : joue dans une colonne jusqu'à qu'elle soit bloquée 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 :- dynamic last_move/1.   % last_move(Column) utile pour utiliser l'ia naive
 :- dynamic ia_target/1.
 
@@ -249,7 +253,6 @@ choose_new_target(Board, Target) :-
     colonne_disponible(Board, T),
     Target = T, !.
 
-% IA naive
 ia_naive(Board, Move) :-
     % Récupérer la cible
     ( ia_target(Target) ->
@@ -283,6 +286,10 @@ ia_naive(Board, Move) :-
       Move = NewTarget,
       !
     ).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IA de niveau 1 : coup gagnant et coup défensif
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 simulate_move(Board, Col, Player, SimBoard) :-
     colonne_disponible(Board, Col),
