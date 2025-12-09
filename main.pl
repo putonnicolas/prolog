@@ -51,11 +51,12 @@ affiche_lignes(Board, Ligne) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 choisir_coup(Board, x, Colonne) :-
-    % Joueur humain (X)
+    % IA (Humain X)
     write('Joueur x, choisis un colonne (1-7): '),
     read(Colonne),
-    (colonne_disponible(Board, Colonne) -> %    Vérifie si la colonne est disponible
-        true
+    ( colonne_disponible(Board, Colonne) ->
+        retractall(last_human_move(_)),
+        assert(last_human_move(Colonne))
     ;
         writeln('Mouvement invalide ! Recommence.'), %  Sinon erreur puis redemande le coup
         choisir_coup(Board, x, Colonne)
@@ -234,40 +235,54 @@ ia_random(Board, Move):-
     write('IA joue la colonne : '), writeln(Move),
     !.   							 % break
 
-:- dynamic init_ia_colonne_target/1.
+:- dynamic last_move/1.   % last_move(Column) utile pour utiliser l'ia naive
+:- dynamic ia_target/1.
 
-init_ia_target :-
-    random(1, 8, Col),    % colonne entre 1 et 7
-    retractall(init_ia_colonne_target(_)),
-    assert(init_ia_colonne_target(Col)).
-
-new_target(Board, Target) :-
+% Choisir une nouvelle colonne cible valide
+choose_new_target(Board, Target) :-
     repeat,
     random(1, 8, T),
     colonne_disponible(Board, T),
     Target = T, !.
 
+% IA naive
 ia(Board, Move) :-
-    init_ia_colonne_target(Target),
+    % Récupérer la cible
+    ( ia_target(Target) ->
+        true
+    ;
+        choose_new_target(Board, Target),
+        assert(ia_target(Target))
+    ),
 
-    % si la colonne cible est disponible → on la joue
-    colonne_disponible(Board, Target),
-    Move = Target,
-    write('IA continue sur colonne pref: '), writeln(Target), !.
+    % Si l’humain a joué sur la colonne cible = on change
+    ( last_human_move(Target) ->
+        write('Human blocked my column, choosing new target...'), nl,
+        choose_new_target(Board, NewTarget),
+        retractall(ia_target(_)),
+        assert(ia_target(NewTarget)),
+        Move = NewTarget,
+        !
+    ;
 
-ia(Board, Move) :-
-    % sinon : colonne cible pleine → on en choisit une nouvelle
-    write('IA change de colonne pref'), nl,
-    new_target(Board, NewTarget),
-    retractall(init_ia_colonne_target(_)),
-    assert(init_ia_colonne_target(NewTarget)),
-    Move = NewTarget,
-    write('Nouvelle cible : '), writeln(NewTarget), !.
+      % Sinon on essaie de jouer la colonne cible
+      colonne_disponible(Board, Target) ->
+        Move = Target,
+        write('IA plays preferred column: '), writeln(Target), !
+    ;
+
+      % Si la colonne cible est pleine on change
+      write('Preferred column full, selecting new one...'), nl,
+      choose_new_target(Board, NewTarget),
+      retractall(ia_target(_)),
+      assert(ia_target(NewTarget)),
+      Move = NewTarget,
+      !
+    ).
 
 %%%%% Start the game! 
 init :- 
     plateau_initial(Board), 
     assert(board(Board)), 
-    init_ia_target,
     writeln('=== Puissance 4 ==='),
     play(x).
