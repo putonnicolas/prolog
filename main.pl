@@ -1,3 +1,6 @@
+:- use_module(coup_ia).
+:- module(main, [piece_a/4]).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Fonctions utiles au plateau de jeu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,8 +65,7 @@ choisir_coup(Board, x, Colonne) :-
 
 choisir_coup(Board, o, Colonne) :-
     % IA (O)
-    ia(Board, Colonne).
-
+    coup_ia(Board, Colonne, 2).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Jouer un coup
