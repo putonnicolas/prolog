@@ -201,7 +201,8 @@ play(Player):-
     
     % Vérifie d'abord si le plateau est plein (match nul)
     (plateau_plein(Board) -> 
-        writeln('Egalité ! Plateau plein.'), !
+        writeln('Egalité ! Plateau plein.'),
+        retract(board(Board)), !  % Nettoie le plateau
     ; 
         % Le jeu continue - le joueur actuel joue
         write('Au tour de : '), writeln(Player),
@@ -213,7 +214,8 @@ play(Player):-
         % Vérifie si ce joueur vient de gagner
         (win(NewBoard) -> 
             affiche_plateau(NewBoard),
-            write('Joueur '), write(Player), writeln(' gagne !'), !
+            write('Joueur '), write(Player), writeln(' gagne !'),
+            retract(board(NewBoard)), !  % Nettoie le plateau
         ;
             % Continue avec le joueur suivant
             changePlayer(Player, NextPlayer),
