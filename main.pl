@@ -11,6 +11,7 @@ plateau_initial([
     [], [], [], [], [], [], []
 ]).
 
+% Permet de récupérer la pièce à une position donnée (ligne, colonne)
 piece_a(Board, NumLigne, NumColonne, Piece) :-
     nth1(NumColonne, Board, Colonne),
     nth1(NumLigne, Colonne, Piece),
@@ -53,13 +54,14 @@ affiche_lignes(Board, Ligne) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 choisir_coup(Board, x, Colonne) :-
-    % Joueur humain (X)
-    write('Player x, choose a column (1-7): '),
+    % IA (Humain X)
+    write('Joueur x, choisis un colonne (1-7): '),
     read(Colonne),
-    (colonne_disponible(Board, Colonne) ->
-        true
+    ( colonne_disponible(Board, Colonne) ->
+        retractall(last_human_move(_)),
+        assert(last_human_move(Colonne))
     ;
-        writeln('Invalid move! Try again.'),
+        writeln('Mouvement invalide ! Recommence.'), %  Sinon erreur puis redemande le coup
         choisir_coup(Board, x, Colonne)
     ).
 
@@ -72,14 +74,15 @@ choisir_coup(Board, o, Colonne) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 jouer_coup(Board, NumColonne, Player, NewBoard) :-
-    nth1(NumColonne, Board, Colonne),
-    length(Colonne, Hauteur),
+    nth1(NumColonne, Board, Colonne), % Récupère la colonne choisie
+    length(Colonne, Hauteur), % Calcule la hauteur actuelle de la colonne
     Hauteur < 6, % Vérifier que le coup peut être joué
-    append(Colonne, [Player], NewColonne),
-    replace_colonne(Board, NewBoard, NumColonne, NewColonne).
+    append(Colonne, [Player], NewColonne), % Ajoute la pièce du dans la liste de la colonne
+    replace_colonne(Board, NewBoard, NumColonne, NewColonne). % Remplace la colonne dans le plateau
 
-replace_colonne([_ | T], [NewColonne | T], 1, NewColonne).
-replace_colonne([HToKeep | Tail], [HToKeep | NewTail], NumColonne, NewColonne) :-
+% Met à jour le plateau avec la nouvelle colonne
+replace_colonne([_ | T], [NewColonne | T], 1, NewColonne). % Cas de base la colonne à remplacer est en position 1
+replace_colonne([HToKeep | Tail], [HToKeep | NewTail], NumColonne, NewColonne) :- % On décrémente le numéro de colonne jusqu'à atteindre 1
     NewNum is NumColonne - 1,
     replace_colonne(Tail, NewTail, NewNum, NewColonne).
 
@@ -181,7 +184,7 @@ avance_diag2(_, _, _, _, Count, Count).
 %% Plateau plein
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 plateau_plein(Board) :-
-    \+ colonne_disponible(Board, _). %% Négation de l'existence d'une colonne disponible
+    \+ colonne_disponible(Board, _). % Négation de l'existence d'une colonne disponible
 
 colonne_disponible(Board, NumCol) :- 
     between(1, 7, NumCol), % Teste les colonnes de 1 à 7
@@ -201,19 +204,25 @@ play(Player):-
     
     % Vérifie d'abord si le plateau est plein (match nul)
     (plateau_plein(Board) -> 
-        writeln('Draw! Board is full.'), !
+        writeln('Egalité ! Plateau plein.'),
+        retract(board(Board)), !  % Nettoie le plateau
     ; 
         % Le jeu continue - le joueur actuel joue
-        write('New turn for: '), writeln(Player),
+        write('Au tour de : '), writeln(Player),
         choisir_coup(Board, Player, Colonne), % demande le coup (IA ou humain)
         jouer_coup(Board, Colonne, Player, NewBoard), % joue le coup
         retract(board(Board)), % retire l'ancien plateau
         assert(board(NewBoard)), % stocke le nouveau plateau
         
+        % Calcule la ligne où la pièce a atterri
+        nth1(Colonne, NewBoard, ColonneJouee),
+        length(ColonneJouee, Ligne),
+        
         % Vérifie si ce joueur vient de gagner
-        (win(NewBoard) -> 
+        (win(NewBoard, Ligne, Colonne) -> 
             affiche_plateau(NewBoard),
-            write('Player '), write(Player), writeln(' wins!'), !
+            write('Joueur '), write(Player), writeln(' gagne !'),
+            retract(board(NewBoard)), !  % Nettoie le plateau
         ;
             % Continue avec le joueur suivant
             changePlayer(Player, NextPlayer),
@@ -225,12 +234,93 @@ play(Player):-
 %% IA aléatoire
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ia(Board, Move):- 
+ia_random(Board, Move):- 
     repeat,                          % recommencer jusqu'à ce qu'on trouve
     random(1, 8, Move),              % entre 1 et 7 (8 exclu)
     colonne_disponible(Board, Move),  % si la colonne est dispo
-    write('IA plays column: '), writeln(Move),
+    write('IA joue la colonne : '), writeln(Move),
     !.   							 % break
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IA naive : joue dans une colonne jusqu'à qu'elle soit bloquée 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- dynamic last_move/1.   % last_move(Column) utile pour utiliser l'ia naive
+:- dynamic ia_target/1.
+
+% Choisir une nouvelle colonne cible valide
+choose_new_target(Board, Target) :-
+    repeat,
+    random(1, 8, T),
+    colonne_disponible(Board, T),
+    Target = T, !.
+
+ia_naive(Board, Move) :-
+    % Récupérer la cible
+    ( ia_target(Target) ->
+        true
+    ;
+        choose_new_target(Board, Target),
+        assert(ia_target(Target))
+    ),
+
+    % Si l’humain a joué sur la colonne cible = on change
+    ( last_human_move(Target) ->
+        write('Le humain vient de bloquer ma colonne je change de place'), nl,
+        choose_new_target(Board, NewTarget),
+        retractall(ia_target(_)),
+        assert(ia_target(NewTarget)),
+        Move = NewTarget,
+        !
+    ;
+
+      % Sinon on essaie de jouer la colonne cible
+      colonne_disponible(Board, Target) ->
+        Move = Target,
+        write('La IA joue dans sa colonne pref : '), writeln(Target), !
+    ;
+
+      % Si la colonne cible est pleine on change
+      write('La colonne pref est pleine, je choisis une nouvelle'), nl,
+      choose_new_target(Board, NewTarget),
+      retractall(ia_target(_)),
+      assert(ia_target(NewTarget)),
+      Move = NewTarget,
+      !
+    ).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IA de niveau 1 : coup gagnant et coup défensif
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+simulate_move(Board, Col, Player, SimBoard) :-
+    colonne_disponible(Board, Col),
+    jouer_coup(Board, Col, Player, SimBoard).
+
+ia(Board, Move) :-
+    % Option 1. Coup gagnant pour l’IA 
+    between(1, 7, Col),
+    simulate_move(Board, Col, o, B2),
+    win(B2),
+    Move = Col,
+    write('IA joue un coup gagnant en colonne '), writeln(Col), !.
+
+ia(Board, Move) :-
+    % Option 2. Coup défensif en bloquant X si il peut gagner
+    between(1, 7, Col),
+    simulate_move(Board, Col, x, B2),
+    win(B2),
+    Move = Col,
+    write('IA bloque le joueur en colonne '), writeln(Col), !.
+
+ia(Board, Move) :-
+    % Option 3. coup random valide
+    repeat,
+    random(1, 8, Col),
+    colonne_disponible(Board, Col),
+    Move = Col,
+    write('IA joue aléatoire en colonne '), writeln(Col),
+    !.
 
 
 %%%%% Start the game! 
