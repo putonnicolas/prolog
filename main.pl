@@ -8,6 +8,7 @@ plateau_initial([
     [], [], [], [], [], [], []
 ]).
 
+% Permet de récupérer la pièce à une position donnée (ligne, colonne)
 piece_a(Board, NumLigne, NumColonne, Piece) :-
     nth1(NumColonne, Board, Colonne),
     nth1(NumLigne, Colonne, Piece),
@@ -51,12 +52,12 @@ affiche_lignes(Board, Ligne) :-
 
 choisir_coup(Board, x, Colonne) :-
     % Joueur humain (X)
-    write('Player x, choose a column (1-7): '),
+    write('Joueur x, choisis un colonne (1-7): '),
     read(Colonne),
-    (colonne_disponible(Board, Colonne) ->
+    (colonne_disponible(Board, Colonne) -> %    Vérifie si la colonne est disponible
         true
     ;
-        writeln('Invalid move! Try again.'),
+        writeln('Mouvement invalide ! Recommence.'), %  Sinon erreur puis redemande le coup
         choisir_coup(Board, x, Colonne)
     ).
 
@@ -70,14 +71,15 @@ choisir_coup(Board, o, Colonne) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 jouer_coup(Board, NumColonne, Player, NewBoard) :-
-    nth1(NumColonne, Board, Colonne),
-    length(Colonne, Hauteur),
+    nth1(NumColonne, Board, Colonne), % Récupère la colonne choisie
+    length(Colonne, Hauteur), % Calcule la hauteur actuelle de la colonne
     Hauteur < 6, % Vérifier que le coup peut être joué
-    append(Colonne, [Player], NewColonne),
-    replace_colonne(Board, NewBoard, NumColonne, NewColonne).
+    append(Colonne, [Player], NewColonne), % Ajoute la pièce du dans la liste de la colonne
+    replace_colonne(Board, NewBoard, NumColonne, NewColonne). % Remplace la colonne dans le plateau
 
-replace_colonne([_ | T], [NewColonne | T], 1, NewColonne).
-replace_colonne([HToKeep | Tail], [HToKeep | NewTail], NumColonne, NewColonne) :-
+% Met à jour le plateau avec la nouvelle colonne
+replace_colonne([_ | T], [NewColonne | T], 1, NewColonne). % Cas de base la colonne à remplacer est en position 1
+replace_colonne([HToKeep | Tail], [HToKeep | NewTail], NumColonne, NewColonne) :- % On décrémente le numéro de colonne jusqu'à atteindre 1
     NewNum is NumColonne - 1,
     replace_colonne(Tail, NewTail, NewNum, NewColonne).
 
@@ -179,7 +181,7 @@ avance_diag2(_, _, _, _, Count, Count).
 %% Plateau plein
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 plateau_plein(Board) :-
-    \+ colonne_disponible(Board, _). %% Négation de l'existence d'une colonne disponible
+    \+ colonne_disponible(Board, _). % Négation de l'existence d'une colonne disponible
 
 colonne_disponible(Board, NumCol) :- 
     between(1, 7, NumCol), % Teste les colonnes de 1 à 7
@@ -199,10 +201,10 @@ play(Player):-
     
     % Vérifie d'abord si le plateau est plein (match nul)
     (plateau_plein(Board) -> 
-        writeln('Draw! Board is full.'), !
+        writeln('Egalité ! Plateau plein.'), !
     ; 
         % Le jeu continue - le joueur actuel joue
-        write('New turn for: '), writeln(Player),
+        write('Au tour de : '), writeln(Player),
         choisir_coup(Board, Player, Colonne), % demande le coup (IA ou humain)
         jouer_coup(Board, Colonne, Player, NewBoard), % joue le coup
         retract(board(Board)), % retire l'ancien plateau
@@ -211,7 +213,7 @@ play(Player):-
         % Vérifie si ce joueur vient de gagner
         (win(NewBoard) -> 
             affiche_plateau(NewBoard),
-            write('Player '), write(Player), writeln(' wins!'), !
+            write('Joueur '), write(Player), writeln(' gagne !'), !
         ;
             % Continue avec le joueur suivant
             changePlayer(Player, NextPlayer),
@@ -227,7 +229,7 @@ ia(Board, Move):-
     repeat,                          % recommencer jusqu'à ce qu'on trouve
     random(1, 8, Move),              % entre 1 et 7 (8 exclu)
     colonne_disponible(Board, Move),  % si la colonne est dispo
-    write('IA plays column: '), writeln(Move),
+    write('IA joue la colonne : '), writeln(Move),
     !.   							 % break
 
 
