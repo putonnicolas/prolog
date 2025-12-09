@@ -1,4 +1,5 @@
 :- use_module(utils, [
+    plateau_initial/1,
     affiche_plateau/1,
     jouer_coup/4,
     colonne_disponible/2,
@@ -17,11 +18,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic board/1. % Permet l'assertion et le retrait de faits board/1
-
-plateau_initial([
-    [], [], [], [], [], [], []
-]).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Changer de joueur

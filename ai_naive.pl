@@ -1,14 +1,16 @@
 :- module(ai_naive, [ia_random/2, ia_naive/2, ia/2]).
 :- use_module(utils, [
+    plateau_initial/1,
     affiche_plateau/1,
-    jouer_coup/4,
-    choisir_coup/3,
     colonne_disponible/2,
-    win/1, 
-    win/3, 
+    jouer_coup/4,
     plateau_plein/1,
-    piece_a/4
+    piece_a/4,
+    choisir_coup/3,
+    win/1,
+    win/3
 ]).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% IA aléatoire

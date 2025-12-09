@@ -1,5 +1,18 @@
-:- module(utils, [affiche_plateau/1, plateau_plein/1, piece_a/4, jouer_coup/4, choisir_coup/3, colonne_disponible/2, win/1, win/3]).
+:- module(utils, [
+    plateau_initial/1,
+    affiche_plateau/1,
+    colonne_disponible/2,
+    jouer_coup/4,
+    plateau_plein/1,
+    piece_a/4,
+    choisir_coup/3,
+    win/1,
+    win/3
+]).
+
 :- use_module(ai_naive, [ia_random/2]).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Affichage du plateau
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -29,6 +42,12 @@ affiche_lignes(Board, Ligne) :-
     affiche_ligne(Board, Ligne),
     Ligne1 is Ligne - 1,
     affiche_lignes(Board, Ligne1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Plateau initial
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+plateau_initial([ [],[],[],[],[],[],[] ]).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
