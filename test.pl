@@ -1,7 +1,5 @@
 :- begin_tests(puissance4_tests).
 
-:- use_module(utils).
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%       TESTS UNITAIRES    %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

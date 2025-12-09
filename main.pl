@@ -1,15 +1,4 @@
-:- use_module(utils, [
-    plateau_initial/1,
-    affiche_plateau/1,
-    jouer_coup/4,
-    colonne_disponible/2,
-    win/1, 
-    win/3,
-    plateau_plein/1,
-    piece_a/4,
-    choisir_coup/3
-]).
-:- use_module(ai_naive, [ia_naive/2]).
+
 
 % :- use_module(ia_minimax, [coup_ia/3]).
 

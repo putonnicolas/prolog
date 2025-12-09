@@ -1,6 +1,3 @@
-:- module(ia_minimax, [coup_ia/3]).
-:- use_module(utils, [piece_a/4]).
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Définition de l'heuristique
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,16 +1,4 @@
-:- module(utils, [
-    plateau_initial/1,
-    affiche_plateau/1,
-    colonne_disponible/2,
-    jouer_coup/4,
-    plateau_plein/1,
-    piece_a/4,
-    choisir_coup/3,
-    win/1,
-    win/3
-]).
 
-:- use_module(ai_naive, [ia_random/2]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
