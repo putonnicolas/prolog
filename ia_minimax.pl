@@ -1,7 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Définition de l'heuristique
+%% Module & heuristique
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-matrice_pondération([
+:- module(ia_minimax, [coup_ia/3, calculer_poids_colonne/6]).
+
+% Matrice de pondération (ASCII only)
+matrice_ponderation([
     [3, 4, 5, 7, 5, 4, 3],  % Ligne 1 (en haut)
     [4, 6, 8, 10, 8, 6, 4], % Ligne 2
     [5, 8, 11, 14, 11, 8, 5],% Ligne 3
@@ -12,7 +15,7 @@ matrice_pondération([
 
 % obtenir_poid(Ligne, Colonne, Valeur)
 obtenir_poid(L, C, Valeur) :-
-    matrice_pondération(Matrice),
+    matrice_ponderation(Matrice),
     % Récupère la L-ième ligne (Liste_Ligne)
     nth1(L, Matrice, Liste_Ligne),
     % Récupère la C-ième valeur dans cette ligne
@@ -24,8 +27,9 @@ obtenir_poid(L, C, Valeur) :-
 %% Minimax
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Implémentation de l'IA Minimax
-coup_ia(Board, Move, Depth) :-
-    true.
+coup_ia(_, _, _) :-
+    % TODO: implémenter minimax
+    fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Calcul des poids
