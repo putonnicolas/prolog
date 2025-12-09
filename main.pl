@@ -225,17 +225,47 @@ play(Player):-
 %% IA aléatoire
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ia(Board, Move):- 
+ia_random(Board, Move):- 
     repeat,                          % recommencer jusqu'à ce qu'on trouve
     random(1, 8, Move),              % entre 1 et 7 (8 exclu)
     colonne_disponible(Board, Move),  % si la colonne est dispo
     write('IA joue la colonne : '), writeln(Move),
     !.   							 % break
 
+:- dynamic init_ia_colonne_target/1.
+
+init_ia_target :-
+    random(1, 8, Col),    % colonne entre 1 et 7
+    retractall(init_ia_colonne_target(_)),
+    assert(init_ia_colonne_target(Col)).
+
+new_target(Board, Target) :-
+    repeat,
+    random(1, 8, T),
+    colonne_disponible(Board, T),
+    Target = T, !.
+
+ia(Board, Move) :-
+    init_ia_colonne_target(Target),
+
+    % si la colonne cible est disponible → on la joue
+    colonne_disponible(Board, Target),
+    Move = Target,
+    write('IA continue sur colonne pref: '), writeln(Target), !.
+
+ia(Board, Move) :-
+    % sinon : colonne cible pleine → on en choisit une nouvelle
+    write('IA change de colonne pref'), nl,
+    new_target(Board, NewTarget),
+    retractall(init_ia_colonne_target(_)),
+    assert(init_ia_colonne_target(NewTarget)),
+    Move = NewTarget,
+    write('Nouvelle cible : '), writeln(NewTarget), !.
 
 %%%%% Start the game! 
 init :- 
     plateau_initial(Board), 
     assert(board(Board)), 
+    init_ia_target,
     writeln('=== Puissance 4 ==='),
     play(x).
