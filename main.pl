@@ -250,7 +250,7 @@ choose_new_target(Board, Target) :-
     Target = T, !.
 
 % IA naive
-ia(Board, Move) :-
+ia_naive(Board, Move) :-
     % Récupérer la cible
     ( ia_target(Target) ->
         true
@@ -283,6 +283,36 @@ ia(Board, Move) :-
       Move = NewTarget,
       !
     ).
+
+simulate_move(Board, Col, Player, SimBoard) :-
+    colonne_disponible(Board, Col),
+    jouer_coup(Board, Col, Player, SimBoard).
+
+ia(Board, Move) :-
+    % Option 1. Coup gagnant pour l’IA 
+    between(1, 7, Col),
+    simulate_move(Board, Col, o, B2),
+    win(B2),
+    Move = Col,
+    write('IA joue un coup gagnant en colonne '), writeln(Col), !.
+
+ia(Board, Move) :-
+    % Option 2. Coup défensif en bloquant X si il peut gagner
+    between(1, 7, Col),
+    simulate_move(Board, Col, x, B2),
+    win(B2),
+    Move = Col,
+    write('IA bloque le joueur en colonne '), writeln(Col), !.
+
+ia(Board, Move) :-
+    % Option 3. coup random valide
+    repeat,
+    random(1, 8, Col),
+    colonne_disponible(Board, Col),
+    Move = Col,
+    write('IA joue aléatoire en colonne '), writeln(Col),
+    !.
+
 
 %%%%% Start the game! 
 init :- 
