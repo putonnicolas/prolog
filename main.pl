@@ -212,8 +212,12 @@ play(Player):-
         retract(board(Board)), % retire l'ancien plateau
         assert(board(NewBoard)), % stocke le nouveau plateau
         
+        % Calcule la ligne où la pièce a atterri
+        nth1(Colonne, NewBoard, ColonneJouee),
+        length(ColonneJouee, Ligne),
+        
         % Vérifie si ce joueur vient de gagner
-        (win(NewBoard) -> 
+        (win(NewBoard, Ligne, Colonne) -> 
             affiche_plateau(NewBoard),
             write('Joueur '), write(Player), writeln(' gagne !'),
             retract(board(NewBoard)), !  % Nettoie le plateau
