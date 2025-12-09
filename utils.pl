@@ -53,20 +53,21 @@ piece_a(_, _, _, vide) :- !. % Si on n'a pas trouvé de pièce, c'est que la cas
 %% Choisir un coup
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 choisir_coup(Board, x, Colonne) :-
-    % IA (Humain X)
-    write('Joueur x, choisis un colonne (1-7): '),
-    read(Colonne),
-    ( colonne_disponible(Board, Colonne) ->
-        retractall(last_human_move(_)),
-        assert(last_human_move(Colonne))
-    ;
-        writeln('Mouvement invalide ! Recommence.'), %  Sinon erreur puis redemande le coup
-        choisir_coup(Board, x, Colonne)
-    ).
+    repeat,
+        write('Joueur x, choisis un colonne (1-7): '),
+        read(C),
+        (   integer(C), between(1,7,C), colonne_disponible(Board, C)
+        ->  Colonne = C,
+            retractall(last_human_move(_)),
+            assert(last_human_move(Colonne)),
+            !
+        ;   writeln('Mouvement invalide ! Recommence.'),
+            fail
+        ).
 
 choisir_coup(Board, o, Colonne) :-
     % IA (O)
-    ia_random(Board, Colonne).
+    ia_niveau1(Board, Colonne).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Jouer un coup

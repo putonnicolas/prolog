@@ -1,6 +1,3 @@
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% IA aléatoire
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -68,7 +65,7 @@ simulate_move(Board, Col, Player, SimBoard) :-
     colonne_disponible(Board, Col),
     jouer_coup(Board, Col, Player, SimBoard).
 
-ia(Board, Move) :-
+ia_niveau1(Board, Move) :-
     % Option 1. Coup gagnant pour l’IA 
     between(1, 7, Col),
     simulate_move(Board, Col, o, B2),
@@ -76,7 +73,7 @@ ia(Board, Move) :-
     Move = Col,
     write('IA joue un coup gagnant en colonne '), writeln(Col), !.
 
-ia(Board, Move) :-
+ia_niveau1(Board, Move) :-
     % Option 2. Coup défensif en bloquant X si il peut gagner
     between(1, 7, Col),
     simulate_move(Board, Col, x, B2),
@@ -84,7 +81,7 @@ ia(Board, Move) :-
     Move = Col,
     write('IA bloque le joueur en colonne '), writeln(Col), !.
 
-ia(Board, Move) :-
+ia_niveau1(Board, Move) :-
     % Option 3. coup random valide
     repeat,
     random(1, 8, Col),
