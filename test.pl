@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 test(plateau_vide) :-
-    plateau_initial(Board),
+    user:plateau_initial(Board),
     Board == [[], [], [], [], [], [], []].
 
 test(win_colonne) :-
@@ -18,7 +18,7 @@ test(win_colonne) :-
         [],
         []
     ],
-    win(Board, 4, 1).
+    user:win(Board, 4, 1).
 
 test(win_ligne) :-
     Board = [  
@@ -30,7 +30,7 @@ test(win_ligne) :-
         [],
         [x]
     ],
-    win(Board, 1, 3).
+    user:win(Board, 1, 3).
 
 test(win_diagonale) :-
     % Diagonale sens 1 (haut-gauche vers bas-droite):
@@ -47,7 +47,7 @@ test(win_diagonale) :-
         [],
         []
     ],
-    win(Board, 4, 4).
+    user:win(Board, 4, 4).
 
 test(board_full) :-
     Board = [
@@ -59,7 +59,7 @@ test(board_full) :-
         [o, x, x, o, x, o],
         [x, x, x, o, x, o]
     ],
-    plateau_plein(Board).
+    user:plateau_plein(Board).
 
 
 :- end_tests(puissance4_tests).

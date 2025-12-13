@@ -15,6 +15,7 @@ ia_random(Board, Move):-
 
 :- dynamic last_move/1.   % last_move(Column) utile pour utiliser l'ia naive
 :- dynamic ia_target/1.
+:- dynamic last_human_move/1.
 
 % Choisir une nouvelle colonne cible valide
 choose_new_target(Board, Target) :-

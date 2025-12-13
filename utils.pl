@@ -96,10 +96,10 @@ win(Board) :-
     win(Board, Ligne, Colonne).
 
 win(Board, Ligne, Colonne) :- 
-    win_ligne(Board, Ligne); 
-    win_colonne(Board, Colonne); 
+    ( win_ligne(Board, Ligne);
+    win_colonne(Board, Colonne);
     win_diago_sens1(Board, Ligne, Colonne);
-    win_diago_sens2(Board, Ligne, Colonne). 
+    win_diago_sens2(Board, Ligne, Colonne)), !.
 
 alignees(P, P, P, P) :-
     P \= vide.
@@ -113,7 +113,7 @@ win_ligne(Board, Ligne) :-
     piece_a(Board, Ligne, Col2, P2),
     piece_a(Board, Ligne, Col3, P3),
     piece_a(Board, Ligne, Col4, P4),
-    alignees(P1, P2, P3, P4).
+    alignees(P1, P2, P3, P4), !.
 
 win_colonne(Board, Colonne) :-
     between(1, 3, Ligne),
@@ -124,14 +124,14 @@ win_colonne(Board, Colonne) :-
     piece_a(Board, Ligne2, Colonne, P2),
     piece_a(Board, Ligne3, Colonne, P3),
     piece_a(Board, Ligne4, Colonne, P4),
-    alignees(P1, P2, P3, P4).
+    alignees(P1, P2, P3, P4), !.
 
 win_diago_sens1(Board, Ligne, Colonne) :-
     piece_a(Board, Ligne, Colonne, P),
     P \= vide,  % La pièce ne doit pas être vide
     recule_diag1(Board, Ligne, Colonne, P, L0, C0),
     compte_diag1(Board, L0, C0, P, Compte),
-    Compte >= 4.
+    Compte >= 4, !.
 
 recule_diag1(Board, L, C, P, L0, C0) :-
     L1 is L - 1,
@@ -158,7 +158,7 @@ win_diago_sens2(Board, Ligne, Colonne) :-
     P \= vide,  % La pièce ne doit pas être vide
     recule_diag2(Board, Ligne, Colonne, P, L0, C0),
     compte_diag2(Board, L0, C0, P, Compte),
-    Compte >= 4.
+    Compte >= 4, !.
 
 recule_diag2(Board, L, C, P, L0, C0) :-
     L1 is L + 1,
