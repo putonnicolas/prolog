@@ -1,4 +1,4 @@
-
+:- dynamic ia_niveau1/2.  % Prédicat utilisé depuis ai_naive.pl
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,7 +78,7 @@ jouer_coup(Board, NumColonne, Player, NewBoard) :-
     length(Colonne, Hauteur), % Calcule la hauteur actuelle de la colonne
     Hauteur < 6, % Vérifier que le coup peut être joué
     append(Colonne, [Player], NewColonne), % Ajoute la pièce du dans la liste de la colonne
-    replace_colonne(Board, NewBoard, NumColonne, NewColonne). % Remplace la colonne dans le plateau
+    replace_colonne(Board, NewBoard, NumColonne, NewColonne), !. % Remplace la colonne dans le plateau
 
 % Met à jour le plateau avec la nouvelle colonne
 replace_colonne([_ | T], [NewColonne | T], 1, NewColonne). % Cas de base la colonne à remplacer est en position 1

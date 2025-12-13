@@ -3,3 +3,4 @@
 :- consult(ai_naive).
 :- consult(main).
 :- consult(ia_minimax).
+:- consult(test).
