@@ -1,4 +1,4 @@
-:- dynamic ia_niveau1/2.  % Prédicat utilisé depuis ai_naive.pl
+:- dynamic ia_niveau1/2.  % Prédicat utilisé depuis ai_naive.pl (éviter l'erreur d'undefined predicate...)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

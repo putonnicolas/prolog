@@ -192,6 +192,19 @@ test(win_diagonale_not_four) :-
     ],
     \+ user:win(Board, _, _).
 
+test(no_win_broken_diag) :-
+    % Vérifier qu'une diagonale cassée (3 x + 1 o au milieu) n'est pas une victoire
+    Board = [
+        [x],
+        [o, x],
+        [o, o, o],
+        [o, o, o, x],
+        [],
+        [],
+        []
+    ],
+    \+ user:win(Board, _, _).
+
 
 % === Tests de piece_a ===
 
@@ -211,5 +224,51 @@ test(piece_a_out_of_bounds) :-
     % Vérifier que demander une pièce hors limites retourne 'vide'
     Board = [[x], [], [], [], [], [], []],
     user:piece_a(Board, 10, 10, vide).
+
+test(piece_a_beyond_column_height) :-
+    % Vérifier que piece_a retourne 'vide' pour une ligne au-delà de la hauteur d'une colonne
+    Board = [[x], [o, x], [], [], [], [], []],
+    % Colonne 1 a 1 pièce, donc ligne 3 n'existe pas -> vide
+    user:piece_a(Board, 3, 1, vide).
+
+test(piece_a_mixed_columns) :-
+    % Vérifier piece_a avec plusieurs colonnes de hauteurs différentes
+    Board = [[x, o], [x, x, o], [o], [x], [], [], []],
+    user:piece_a(Board, 2, 2, x),    % Colonne 2, ligne 2
+    user:piece_a(Board, 3, 2, o),    % Colonne 2, ligne 3
+    user:piece_a(Board, 2, 3, vide), % Colonne 3, ligne 2 (n'existe pas)
+    user:piece_a(Board, 5, 4, vide). % Colonne 4, ligne 5 (n'existe pas)
+
+
+% === Tests d'intégration : séquence de coups ===
+
+test(integration_sequence_no_win) :-
+    % Simulation : joueur 1 (x) et joueur 2 (o) jouent plusieurs coups sans victoire
+    user:plateau_initial(B0),
+    user:jouer_coup(B0, 1, x, B1),
+    user:piece_a(B1, 1, 1, x),
+    user:jouer_coup(B1, 2, o, B2),
+    user:piece_a(B2, 1, 2, o),
+    user:jouer_coup(B2, 1, x, B3),
+    user:piece_a(B3, 2, 1, x),
+    user:jouer_coup(B3, 1, o, B4),
+    user:piece_a(B4, 3, 1, o),
+    \+ user:win(B4, _, _).
+
+test(integration_sequence_with_win) :-
+    % Simulation : joueur x aligne 4 pièces en colonne et gagne
+    user:plateau_initial(B0),
+    user:jouer_coup(B0, 1, x, B1),
+    user:jouer_coup(B1, 2, o, B2), 
+    user:jouer_coup(B2, 1, x, B3),
+    user:jouer_coup(B3, 2, o, B4),
+    user:jouer_coup(B4, 1, x, B5),
+    user:jouer_coup(B5, 2, o, B6),
+    user:jouer_coup(B6, 1, x, B7),
+    %Vérifier la victioire
+    user:win(B7, 4, 1),
+    % Vérifier que la colonne 1 a bien [x, x, x, x]
+    nth1(1, B7, Col1),
+    Col1 == [x, x, x, x].
 
 :- end_tests(puissance4_tests).
