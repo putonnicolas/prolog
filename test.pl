@@ -276,4 +276,103 @@ test(integration_sequence_with_win) :-
     nth1(1, B7, Col1),
     Col1 == [x, x, x, x].
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%            Tests des IA                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% === Tests IA Random ===
+
+test(ia_random_validity) :-
+    % Vérifier que l'IA random renvoie un coup valide (entre 1 et 7 et colonne disponible)
+    user:plateau_initial(Board),
+    user:ia_random(Board, Move),
+    between(1, 7, Move),
+    user:colonne_disponible(Board, Move).
+
+% === Tests IA Naive (Construire des tours) ===
+
+test(ia_naive_validity) :-
+    % Vérifier que l'IA naïve renvoie un coup valide (entre 1 et 7 et colonne disponible)
+    user:plateau_initial(Board),
+    user:ia_naive(Board, Move),
+    between(1, 7, Move),
+    user:colonne_disponible(Board, Move).
+
+test(ia_naive_sticks_to_target) :-
+    % Vérifier que l'IA joue dans sa colonne cible si elle est disponible
+    user:plateau_initial(Board),
+    retractall(user:ia_target(_)), % Réinitialiser la cible
+    assert(user:ia_target(3)), % Définir la cible à la colonne 3
+    user:ia_naive(Board, Move),
+    Move == 3. % L'IA naïve doit jouer dans sa cible
+
+test(ia_naive_changes_target_when_blocked) :-
+    % Vérifier que l'IA change de cible si l'humain vient de jouer dans sa colonne cible
+    Board = [
+        [x],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    retractall(user:ia_target(_)), % Réinitialiser la cible
+    assert(user:ia_target(1)), % Définir la cible à la colonne 1
+    retractall(user:last_human_move(_)),
+    assert(user:last_human_move(1)), % Simuler que l'humain a joué dans la colonne 1
+    user:ia_naive(Board, Move),
+    Move \== 1. % L'IA naïve doit changer de cible
+
+% === Tests IA Niveau 1 (Opportuniste) ===
+
+test(ia_niveau_1_validity) :-
+    % Vérifier que l'IA joue un coup valide (entre 1 et 7 et colonne disponible)
+    user:plateau_initial(Board),
+    user:ia_niveau1(Board, Move),
+    between(1, 7, Move),
+    user:colonne_disponible(Board, Move).
+
+test(ia_niveau1_win) :-
+    % Vérifier que l'IA joue un coup gagnant si possible
+    Board = [
+        [o, o, o],
+        [x, x],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:ia_niveau1(Board, Move),
+    Move == 1.  % L'IA doit jouer en colonne 1 pour gagner
+
+test(ia_niveau1_block) :-
+    % Vérifier que l'IA bloque le joueur si celui-ci peut gagner au prochain coup
+    Board = [
+        [x, x, x],
+        [o, o],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:ia_niveau1(Board, Move),
+    Move == 1.  % L'IA doit jouer en colonne 1 pour bloquer
+
+test(ia_niveau1_block_autre) :-
+    % Vérifier que l'IA bloque le coup du joueur dans une configuration plus compliquée
+    Board = [
+        [x],
+        [o, x],
+        [o, o, x],
+        [x, o, o],
+        [x],
+        [],
+        []
+    ],
+    user:ia_niveau1(Board, Move),
+    Move == 4.  % L'IA doit jouer en colonne 4 pour bloquer
+
 :- end_tests(puissance4_tests).
