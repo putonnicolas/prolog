@@ -1,4 +1,5 @@
 :- dynamic ia_niveau1/2.  % Prédicat utilisé depuis ai_naive.pl (éviter l'erreur d'undefined predicate...)
+:- dynamic ia_minimax/3.  % Prédicat utilisé depuis ai_naive.pl (éviter l'erreur d'undefined predicate...)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Plateau initial
@@ -64,7 +65,7 @@ choisir_coup(Board, x, Colonne) :-
 
 choisir_coup(Board, o, Colonne) :-
     % IA (O)
-    ia_niveau1(Board, Colonne).
+    ia_minimax(Board, Colonne, 4).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Jouer un coup
