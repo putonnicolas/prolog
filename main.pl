@@ -18,9 +18,13 @@
 changePlayer(x, o).
 changePlayer(o, x).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Boucle principale du jeu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 play(Player):- 
     board(Board), % récupère le plateau depuis la base de connaissances
-    affiche_plateau(Board), % affiche le plateau
+    affiche_plateau(Board),
     
     % Vérifie d'abord si le plateau est plein (match nul)
     (plateau_plein(Board) -> 
@@ -29,17 +33,17 @@ play(Player):-
     ; 
         % Le jeu continue - le joueur actuel joue
         write('Au tour de : '), writeln(Player),
-        choisir_coup(Board, Player, Colonne), % demande le coup (IA ou humain)
-        jouer_coup(Board, Colonne, Player, NewBoard), % joue le coup
+        choisir_coup(Board, Player, IdxColonne), % demande le coup (IA ou humain)
+        jouer_coup(Board, IdxColonne, Player, NewBoard), % joue le coup
         retract(board(Board)), % retire l'ancien plateau
         assert(board(NewBoard)), % stocke le nouveau plateau
         
         % Calcule la ligne où la pièce a atterri
-        nth1(Colonne, NewBoard, ColonneJouee),
-        length(ColonneJouee, Ligne),
+        nth1(IdxColonne, NewBoard, ColonneJouee),
+        length(ColonneJouee, IdxLigne),
         
-        % Vérifie si ce joueur vient de gagner
-        (win(NewBoard, Ligne, Colonne) -> 
+        % Vérifie si le joueur vient de gagner
+        (win(NewBoard, IdxLigne, IdxColonne) -> 
             affiche_plateau(NewBoard),
             write('Joueur '), write(Player), writeln(' gagne !'),
             retract(board(NewBoard)), !  % Nettoie le plateau
@@ -53,7 +57,7 @@ play(Player):-
 
 
 
-%%%%% Start the game! 
+%%%%% Lancement du jeu ! 
 init :- 
     plateau_initial(Board), 
     assert(board(Board)), 
