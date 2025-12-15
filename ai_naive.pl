@@ -17,10 +17,11 @@ ia_random(Board, Move):-
 :- dynamic ia_target/1.
 :- dynamic last_human_move/1.
 
-% Choisir une nouvelle colonne cible valide
-choose_new_target(Board, Target) :-
+% Choisir une nouvelle colonne cible valide (en évitant une colonne spécifique si besoin)
+choose_new_target(Board, Target, AvoidTarget) :-
     repeat,
     random(1, 8, T),
+    T \= AvoidTarget, % Eviter la colonne en question
     colonne_disponible(Board, T),
     Target = T, !.
 
@@ -29,14 +30,14 @@ ia_naive(Board, Move) :-
     ( ia_target(Target) ->
         true
     ;
-        choose_new_target(Board, Target),
+        choose_new_target(Board, Target, -1), % -1 car aucune colonne à éviter au début
         assert(ia_target(Target))
     ),
 
     % Si l’humain a joué sur la colonne cible = on change
     ( last_human_move(Target) ->
-        choose_new_target(Board, NewTarget),
         write('L\'humain vient de bloquer ma colonne, je change de place'), nl,
+        choose_new_target(Board, NewTarget, Target), % On évite l'ancienne cible
         retractall(ia_target(_)),
         assert(ia_target(NewTarget)),
         Move = NewTarget,
@@ -51,7 +52,7 @@ ia_naive(Board, Move) :-
 
       % Si la colonne cible est pleine on change
       write('La colonne pref est pleine, je choisis une nouvelle'), nl,
-      choose_new_target(Board, NewTarget),
+      choose_new_target(Board, NewTarget, Target), % On évite l'ancienne cible pleine
       retractall(ia_target(_)),
       assert(ia_target(NewTarget)),
       Move = NewTarget,
