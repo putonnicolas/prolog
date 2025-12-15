@@ -35,8 +35,8 @@ ia_naive(Board, Move) :-
 
     % Si l’humain a joué sur la colonne cible = on change
     ( last_human_move(Target) ->
-        write('Le humain vient de bloquer ma colonne je change de place'), nl,
         choose_new_target(Board, NewTarget),
+        write('L\'humain vient de bloquer ma colonne, je change de place'), nl,
         retractall(ia_target(_)),
         assert(ia_target(NewTarget)),
         Move = NewTarget,
@@ -46,7 +46,7 @@ ia_naive(Board, Move) :-
       % Sinon on essaie de jouer la colonne cible
       colonne_disponible(Board, Target) ->
         Move = Target,
-        write('La IA joue dans sa colonne pref : '), writeln(Target), !
+        write('L\'IA joue dans sa colonne pref : '), writeln(Target), !
     ;
 
       % Si la colonne cible est pleine on change
@@ -72,7 +72,7 @@ ia_niveau1(Board, Move) :-
     simulate_move(Board, Col, o, B2),
     win(B2),
     Move = Col,
-    write('IA joue un coup gagnant en colonne '), writeln(Col), !.
+    write('L\'IA joue un coup gagnant en colonne '), writeln(Col), !.
 
 ia_niveau1(Board, Move) :-
     % Option 2. Coup défensif en bloquant X si il peut gagner
@@ -80,7 +80,7 @@ ia_niveau1(Board, Move) :-
     simulate_move(Board, Col, x, B2),
     win(B2),
     Move = Col,
-    write('IA bloque le joueur en colonne '), writeln(Col), !.
+    write('L\'IA bloque le joueur en colonne '), writeln(Col), !.
 
 ia_niveau1(Board, Move) :-
     % Option 3. coup random valide
@@ -88,5 +88,5 @@ ia_niveau1(Board, Move) :-
     random(1, 8, Col),
     colonne_disponible(Board, Col),
     Move = Col,
-    write('IA joue aléatoire en colonne '), writeln(Col),
+    write('L\'IA joue aléatoire en colonne '), writeln(Col),
     !.
