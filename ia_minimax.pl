@@ -59,11 +59,13 @@ ia_minimax(Board, Colonne, Depth) :-
 %% ÉVALUATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% Évaluer tous les coups possibles à une profondeur donnée
 evaluer_coups([], _, _, _, []).
 evaluer_coups([Col|Cols], Depth, Player, Board, [Score-Col|Rest]) :-
     minimax(Board, Col, Player, Depth, Score),
     evaluer_coups(Cols, Depth, Player, Board, Rest).
 
+%% Algorithme Minimax principal
 minimax(Board, Col, Player, Depth, Score) :-
     jouer_coup(Board, Col, Player, NewBoard),
     
@@ -97,6 +99,7 @@ minimax(Board, Col, Player, Depth, Score) :-
 %% SÉLECTION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% Trouver le meilleur score dans une liste de scores
 meilleur_score(_, [], 0) :- !.
 meilleur_score(Player, Scored, Best) :-
     extraire_scores(Scored, Scores),
@@ -126,6 +129,7 @@ meilleur_coup(Player, Scored, Col) :-
 %% HEURISTIQUE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% quand l'IA évalue un plateau, elle calcule la somme des poids de ses pièces - celles adverses
 heuristique(Board, Player, Score) :-
     opponent(Player, Opp),
     calc_poids(Board, Player, PIA),
@@ -136,6 +140,7 @@ heuristique(Board, Player, Score) :-
     ;   Score is RawScore
     ).
 
+%% Calculer le poids total des pièces d'un joueur sur le plateau
 calc_poids(Board, Player, Total) :-
     findall(Poids, (
         between(1, 6, L),
