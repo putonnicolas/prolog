@@ -1,5 +1,6 @@
-:- dynamic ia_niveau1/2.  % Prédicat utilisé depuis ai_naive.pl (éviter l'erreur d'undefined predicate...)
-:- dynamic ia_minimax/3.  % Prédicat utilisé depuis ai_naive.pl (éviter l'erreur d'undefined predicate...)
+% Déclarations pour éviter les warnings d'éditeur (prédicats définis dans ia_naive.pl et ia_minimax.pl)
+:- dynamic ia_niveau1/2.  
+:- dynamic ia_minimax/3. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Plateau initial

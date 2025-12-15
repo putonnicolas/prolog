@@ -1,6 +1,10 @@
-
-
-% :- use_module(ia_minimax, [coup_ia/3]).
+% Déclarations pour éviter les warnings d'éditeur (prédicats définis dans utils.pl)
+:- dynamic affiche_plateau/1.
+:- dynamic plateau_plein/1.
+:- dynamic choisir_coup/3.
+:- dynamic jouer_coup/4.
+:- dynamic win/3.
+:- dynamic plateau_initial/1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Fonctions utiles au plateau de jeu

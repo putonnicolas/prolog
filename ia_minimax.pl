@@ -1,3 +1,11 @@
+% Déclarations pour éviter les warnings d'éditeur (prédicats définis dans utils.pl)
+:- dynamic colonne_disponible/2.
+:- dynamic jouer_coup/4.
+:- dynamic win/1.
+:- dynamic win/3.
+:- dynamic plateau_plein/1.
+:- dynamic piece_a/4.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MINIMAX SIMPLE ET FONCTIONNEL
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
