@@ -4,8 +4,9 @@
 %%       TESTS UNITAIRES    %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% === Tests de plateau ===
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%     Etat du plateau       %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 test(plateau_vide) :-
     % Vérifier que le plateau initial est bien vide
     user:plateau_initial(Board),
@@ -71,9 +72,42 @@ test(colonne_not_available_full) :-
     ],
     \+ user:colonne_disponible(Board, 1).
 
+% === Tests de piece_a ===
 
-% === Tests de coups ===
+test(piece_a_existing) :-
+    % Vérifier la récupération d'une pièce existante
+    Board = [[x, o], [o], [], [], [], [], []],
+    user:piece_a(Board, 1, 1, x),
+    user:piece_a(Board, 2, 1, o),
+    user:piece_a(Board, 1, 2, o).
 
+test(piece_a_empty) :-
+    % Vérifier qu'une case vide retourne 'vide'
+    user:plateau_initial(Board),
+    user:piece_a(Board, 1, 1, vide).
+
+test(piece_a_out_of_bounds) :-
+    % Vérifier que demander une pièce hors limites retourne 'vide'
+    Board = [[x], [], [], [], [], [], []],
+    user:piece_a(Board, 10, 10, vide).
+
+test(piece_a_beyond_column_height) :-
+    % Vérifier que piece_a retourne 'vide' pour une ligne au-delà de la hauteur d'une colonne
+    Board = [[x], [o, x], [], [], [], [], []],
+    % Colonne 1 a 1 pièce, donc ligne 3 n'existe pas -> vide
+    user:piece_a(Board, 3, 1, vide).
+
+test(piece_a_mixed_columns) :-
+    % Vérifier piece_a avec plusieurs colonnes de hauteurs différentes
+    Board = [[x, o], [x, x, o], [o], [x], [], [], []],
+    user:piece_a(Board, 2, 2, x),    % Colonne 2, ligne 2
+    user:piece_a(Board, 3, 2, o),    % Colonne 2, ligne 3
+    user:piece_a(Board, 2, 3, vide), % Colonne 3, ligne 2 (n'existe pas)
+    user:piece_a(Board, 5, 4, vide). % Colonne 4, ligne 5 (n'existe pas)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%     Jouer un coup         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 test(jouer_coup_empty_col) :-
     % Vérifier que jouer dans une colonne vide place la pièce à la bonne position
     user:plateau_initial(Board),
@@ -93,6 +127,10 @@ test(jouer_coup_refuses_full_col) :-
     Board = [[x, o, x, o, x, o], [], [], [], [], [], []],
     \+ user:jouer_coup(Board, 1, x, _).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%     Victoire             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % === Tests de victoire en colonne ===
 
@@ -205,42 +243,9 @@ test(no_win_broken_diag) :-
     ],
     \+ user:win(Board, _, _).
 
-
-% === Tests de piece_a ===
-
-test(piece_a_existing) :-
-    % Vérifier la récupération d'une pièce existante
-    Board = [[x, o], [o], [], [], [], [], []],
-    user:piece_a(Board, 1, 1, x),
-    user:piece_a(Board, 2, 1, o),
-    user:piece_a(Board, 1, 2, o).
-
-test(piece_a_empty) :-
-    % Vérifier qu'une case vide retourne 'vide'
-    user:plateau_initial(Board),
-    user:piece_a(Board, 1, 1, vide).
-
-test(piece_a_out_of_bounds) :-
-    % Vérifier que demander une pièce hors limites retourne 'vide'
-    Board = [[x], [], [], [], [], [], []],
-    user:piece_a(Board, 10, 10, vide).
-
-test(piece_a_beyond_column_height) :-
-    % Vérifier que piece_a retourne 'vide' pour une ligne au-delà de la hauteur d'une colonne
-    Board = [[x], [o, x], [], [], [], [], []],
-    % Colonne 1 a 1 pièce, donc ligne 3 n'existe pas -> vide
-    user:piece_a(Board, 3, 1, vide).
-
-test(piece_a_mixed_columns) :-
-    % Vérifier piece_a avec plusieurs colonnes de hauteurs différentes
-    Board = [[x, o], [x, x, o], [o], [x], [], [], []],
-    user:piece_a(Board, 2, 2, x),    % Colonne 2, ligne 2
-    user:piece_a(Board, 3, 2, o),    % Colonne 2, ligne 3
-    user:piece_a(Board, 2, 3, vide), % Colonne 3, ligne 2 (n'existe pas)
-    user:piece_a(Board, 5, 4, vide). % Colonne 4, ligne 5 (n'existe pas)
-
-
-% === Tests d'intégration : séquence de coups ===
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Tests d'intégration : Séquence de coups %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 test(integration_sequence_no_win) :-
     % Simulation : joueur 1 (x) et joueur 2 (o) jouent plusieurs coups sans victoire
