@@ -1,5 +1,9 @@
 :- dynamic ia_niveau1/2.  % Prédicat utilisé depuis ai_naive.pl (éviter l'erreur d'undefined predicate...)
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Plateau initial
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+plateau_initial([ [],[],[],[],[],[],[] ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Affichage du plateau
@@ -30,13 +34,6 @@ affiche_lignes(Board, Ligne) :-
     affiche_ligne(Board, Ligne),
     Ligne1 is Ligne - 1,
     affiche_lignes(Board, Ligne1).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Plateau initial
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-plateau_initial([ [],[],[],[],[],[],[] ]).
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Check les pièces
