@@ -5,14 +5,13 @@
 :- dynamic win/3.
 :- dynamic plateau_plein/1.
 :- dynamic piece_a/4.
+:- dynamic changePlayer/2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MINIMAX SIMPLE ET FONCTIONNEL
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-max_player(o). 
-opponent(x, o).
-opponent(o, x).
+max_player(o). % le joueur à maximiser est l'IA donc "o"
 
 % Matrice de pondération
 matrice_ponderation([
@@ -24,10 +23,11 @@ matrice_ponderation([
     [3, 4, 5, 7, 5, 4, 3]
 ]).
 
+% Retourne la valeur à la case C de la ligne L
 obtenir_poid(L, C, Valeur) :-
     matrice_ponderation(Matrice),
-    nth1(L, Matrice, Liste_Ligne),
-    nth1(C, Liste_Ligne, Valeur).
+    nth1(L, Matrice, Liste_Ligne), % Récupère la ligne L de la matrice
+    nth1(C, Liste_Ligne, Valeur). % Récupère la colonne C de la ligne L et le met dans valeur 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% POINT D'ENTRÉE
@@ -35,19 +35,19 @@ obtenir_poid(L, C, Valeur) :-
 
 ia_minimax(Board, Colonne, Depth) :-
     max_player(Player),
-    opponent(Player, Opp),
-    findall(Col, colonne_disponible(Board, Col), Columns),
+    changePlayer(Player, Opp),
+    findall(Col, colonne_disponible(Board, Col), Columns), % Chercher tous les coups jouables
     
     % 1. Chercher coup gagnant
-    (   member(Col, Columns),
-        jouer_coup(Board, Col, Player, TestBoard),
+    (   member(Col, Columns), % on test pour chaque coup possible 
+        jouer_coup(Board, Col, Player, TestBoard), % s'il permettrait de gagner
         win(TestBoard) ->
         Colonne = Col, !
     
     % 2. Bloquer l'adversaire
     ;   member(Col, Columns),
-        jouer_coup(Board, Col, Opp, TestBoard2),
-        win(TestBoard2) ->
+        jouer_coup(Board, Col, Opp, TestBoardOpponent),
+        win(TestBoardOpponent) ->
         Colonne = Col, !
     
     % 3. Minimax
@@ -61,6 +61,7 @@ ia_minimax(Board, Colonne, Depth) :-
 
 %% Évaluer tous les coups possibles à une profondeur donnée
 evaluer_coups([], _, _, _, []).
+% Score-Col est une structure
 evaluer_coups([Col|Cols], Depth, Player, Board, [Score-Col|Rest]) :-
     minimax(Board, Col, Player, Depth, Score),
     evaluer_coups(Cols, Depth, Player, Board, Rest).
@@ -72,8 +73,10 @@ minimax(Board, Col, Player, Depth, Score) :-
     % Cas terminaux
     (   win(NewBoard) ->
         (   max_player(Player) ->
+            % On ajoute Depth pour maximiser le choix de gagner au plus tôt
             Score is 1000 + Depth
         ;
+            % Si c'est pour l'adversaire
             Score is -1000 - Depth
         )
     
@@ -84,12 +87,14 @@ minimax(Board, Col, Player, Depth, Score) :-
         heuristique(NewBoard, Player, Score)
     
     % Récursion
-    ;   opponent(Player, Opp),
+    ;   changePlayer(Player, Opp),
         D1 is Depth - 1,
         findall(C, colonne_disponible(NewBoard, C), NextCols),
-        (   NextCols = [] ->
+        (   % Si y'a plus de coups
+            NextCols = [] ->
             Score is 0
         ;
+            % Explorer la suite de la branche
             evaluer_coups(NextCols, D1, Opp, NewBoard, Scored),
             meilleur_score(Opp, Scored, Score)
         )
@@ -110,16 +115,19 @@ meilleur_score(Player, Scored, Best) :-
     ).
 
 extraire_scores([], []).
+% S s'unifie avec le score et on ne regarde pas le coup
 extraire_scores([S-_|R], [S|Ss]) :-
     extraire_scores(R, Ss).
 
 meilleur_coup(_, [], 4) :- !.
 meilleur_coup(Player, Scored, Col) :-
     meilleur_score(Player, Scored, Best),
-    findall(C, member(Best-C, Scored), BestCols),
-    (   BestCols = [] ->
+    findall(C, member(Best-C, Scored), BestCols), % plusieurs colonnes peuvent avoir le même score
+    (   % peu probable, mais si y'a pas de meilleur coup disponible on joue le 4
+        BestCols = [] ->
         Col = 4
     ;
+        % Sinon, on joue un coup aléatoire parmi les meilleurs
         length(BestCols, N),
         random(0, N, I),
         nth0(I, BestCols, Col)
@@ -131,10 +139,10 @@ meilleur_coup(Player, Scored, Col) :-
 
 %% quand l'IA évalue un plateau, elle calcule la somme des poids de ses pièces - celles adverses
 heuristique(Board, Player, Score) :-
-    opponent(Player, Opp),
+    changePlayer(Player, Opp),
     calc_poids(Board, Player, PIA),
     calc_poids(Board, Opp, PAdv),
-    RawScore is PIA - PAdv,
+    RawScore is PIA - PAdv, % différence > 0 : avantageux pour l'IA, < 0 : avantageux pour le player. 
     (   RawScore > 100 -> Score is 100
     ;   RawScore < -100 -> Score is -100
     ;   Score is RawScore
