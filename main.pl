@@ -13,13 +13,6 @@
 :- dynamic board/1. % Permet l'assertion et le retrait de faits board/1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Changer de joueur
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-changePlayer(x, o).
-changePlayer(o, x).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Boucle principale du jeu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 play(Player):- 

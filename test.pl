@@ -431,7 +431,7 @@ test(ia_minimax_depth_effect) :-
 
 % === Tests des heuristiques ===
 
-    test(heuristique_center_preference) :-
+test(heuristique_center_preference) :-
     % Vérifier que les positions centrales sont préférées
     Board1 = [
         [x],    % ← Pièce en colonne 1, ligne 1
@@ -455,7 +455,7 @@ test(ia_minimax_depth_effect) :-
     user:heuristique(Board2, x, Score2),
     Score2 > Score1.  % Le centre (colonne 4) devrait avoir un score plus élevé.
 
-    test(heuristique_opponent_penalty) :-
+test(heuristique_opponent_penalty) :-
     % Vérifier que les pièces adverses diminuent le score
     Board = [
         [x],
