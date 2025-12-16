@@ -4,3 +4,4 @@
 :- consult(ia_minimax).
 :- consult(main).
 :- consult(test).
+:- consult(benchmark).
