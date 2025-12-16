@@ -375,4 +375,98 @@ test(ia_niveau1_block_autre) :-
     user:ia_niveau1(Board, Move),
     Move == 4.  % L'IA doit jouer en colonne 4 pour bloquer
 
+
+% === Tests IA Minimax ===
+
+test(ia_minimax_validity) :-
+    % Vérifier que l'IA minimax renvoie un coup valide
+    user:plateau_initial(Board),
+    user:ia_minimax(Board, Move, 2),
+    between(1, 7, Move),
+    user:colonne_disponible(Board, Move).
+
+test(ia_minimax_win_priority) :-
+    % Vérifier que l'IA privilégie un coup gagnant immédiat
+    Board = [
+        [o, o, o],
+        [x, x],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:ia_minimax(Board, Move, 4),
+    Move == 1.
+
+test(ia_minimax_block_priority) :-
+    % Vérifier que l'IA bloque l'adversaire en priorité
+    Board = [
+        [x, x, x],
+        [o, o],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:ia_minimax(Board, Move, 4),
+    Move == 1.
+
+test(ia_minimax_depth_effect) :-
+    % Vérifier que la profondeur influence les choix
+    Board = [
+        [x],
+        [o],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:ia_minimax(Board, Move1, 1),
+    user:ia_minimax(Board, Move2, 4),
+    % À profondeur 1, l'IA pourrait choisir différemment qu'à profondeur 4
+    Move1 \== Move2.  % Ce test pourrait échouer si les deux profondeurs donnent le même résultat optimal
+
+% === Tests des heuristiques ===
+
+test(heuristique_center_preference) :-
+    % Vérifier que les positions centrales sont préférées
+    Board1 = [
+        [x],    % ← Pièce en colonne 1, ligne 1
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    Board2 = [
+        [],     % Colonne 1 vide
+        [],     % Colonne 2 vide  
+        [],     % Colonne 3 vide
+        [x],    % ← Pièce en colonne 4, ligne 1
+        [],
+        [],
+        []
+    ],
+    user:heuristique(Board1, x, Score1),
+    user:heuristique(Board2, x, Score2),
+    Score2 > Score1.  % Le centre (colonne 4) devrait avoir un score plus élevé.
+
+test(heuristique_opponent_penalty) :-
+    % Vérifier que les pièces adverses diminuent le score
+    Board = [
+        [x],
+        [o],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:heuristique(Board, x, Score),
+    Score < 0.  % Score négatif car l'adversaire a une pièce au centre
+    
 :- end_tests(puissance4_tests).

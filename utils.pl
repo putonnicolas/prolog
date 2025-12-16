@@ -8,6 +8,12 @@
 plateau_initial([ [],[],[],[],[],[],[] ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Changer de joueur
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+changePlayer(x, o).
+changePlayer(o, x).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Affichage du plateau
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 symbole(vide, '_').
@@ -89,20 +95,25 @@ replace_colonne([HToKeep | Tail], [HToKeep | NewTail], NumColonne, NewColonne) :
 %% Victoire
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Teste toutes les positions du plateau pour une victoire (ancienne version)
 win(Board) :- 
     between(1, 6, Ligne),
     between(1, 7, Colonne),
     win(Board, Ligne, Colonne).
 
+% Teste si le coup joué à (Ligne, Colonne) crée une victoire
+% Vérifie les 4 directions possibles : horizontale, verticale, et les 2 diagonales
 win(Board, Ligne, Colonne) :- 
     ( win_ligne(Board, Ligne);
     win_colonne(Board, Colonne);
     win_diago_sens1(Board, Ligne, Colonne);
     win_diago_sens2(Board, Ligne, Colonne)), !.
 
+% Vérifie que 4 pièces sont identiques et non vides
 alignees(P, P, P, P) :-
     P \= vide.
 
+% Teste les colonnes 1-4, 2-5, 3-6, 4-7 pour trouver 4 pièces alignées
 win_ligne(Board, Ligne) :-
     between(1, 4, Col),
     Col2 is Col + 1,
@@ -114,6 +125,7 @@ win_ligne(Board, Ligne) :-
     piece_a(Board, Ligne, Col4, P4),
     alignees(P1, P2, P3, P4), !.
 
+% Teste les lignes 1-4, 2-5, 3-6 pour trouver 4 pièces empilées
 win_colonne(Board, Colonne) :-
     between(1, 3, Ligne),
     Ligne2 is Ligne + 1,
@@ -125,51 +137,61 @@ win_colonne(Board, Colonne) :-
     piece_a(Board, Ligne4, Colonne, P4),
     alignees(P1, P2, P3, P4), !.
 
+% Détection diagonale sens 1 (bas-gauche vers haut-droit: ↗)
+% Stratégie: recule jusqu'au début de la diagonale, puis compte en avançant
 win_diago_sens1(Board, Ligne, Colonne) :-
     piece_a(Board, Ligne, Colonne, P),
     P \= vide,  % La pièce ne doit pas être vide
-    recule_diag1(Board, Ligne, Colonne, P, L0, C0),
-    compte_diag1(Board, L0, C0, P, Compte),
+    recule_diag1(Board, Ligne, Colonne, P, L0, C0),  % Trouve le début de la diagonale
+    compte_diag1(Board, L0, C0, P, Compte),           % Compte les pièces alignées
     Compte >= 4, !.
 
+% Recule en diagonale (↙) tant qu'on trouve la même pièce
 recule_diag1(Board, L, C, P, L0, C0) :-
-    L1 is L - 1,
-    C1 is C - 1,
-    L1 >= 1, C1 >= 1,
-    piece_a(Board, L1, C1, P), !,
+    L1 is L - 1, % Ligne précédente
+    C1 is C - 1, % Colonne précédente
+    L1 >= 1, C1 >= 1, % Vérifie les limites du plateau
+    piece_a(Board, L1, C1, P), !, % Si la pièce est la même, continue de reculer
     recule_diag1(Board, L1, C1, P, L0, C0).
-recule_diag1(_, L, C, _, L, C).
+recule_diag1(_, L, C, _, L, C).  % Cas de base: on ne peut plus reculer
 
+% Lance le comptage depuis le début de la diagonale
 compte_diag1(Board, L, C, P, Count) :-
     avance_diag1(Board, L, C, P, 1, Count).
 
+% Avance en diagonale (↗) et compte les pièces identiques consécutives
 avance_diag1(Board, L, C, P, Acc, Count) :-
     L1 is L + 1,
     C1 is C + 1,
-    L1 =< 6, C1 =< 7,
-    piece_a(Board, L1, C1, P), !,
-    Acc1 is Acc + 1,
+    L1 =< 6, C1 =< 7, % Vérifie les limites du plateau
+    piece_a(Board, L1, C1, P), !, % Si la pièce est la même, continue d'avancer
+    Acc1 is Acc + 1, % Incrémente le compteur
     avance_diag1(Board, L1, C1, P, Acc1, Count).
-avance_diag1(_, _, _, _, Count, Count).
+avance_diag1(_, _, _, _, Count, Count).  % Cas de base: on ne peut plus avancer et on renvoie le compteur (égal à l'accumulateur)
 
+% Détection diagonale sens 2 (haut-gauche vers bas-droit: ↘)
+% Même stratégie que sens1 mais dans l'autre direction
 win_diago_sens2(Board, Ligne, Colonne) :-
     piece_a(Board, Ligne, Colonne, P),
     P \= vide,  % La pièce ne doit pas être vide
-    recule_diag2(Board, Ligne, Colonne, P, L0, C0),
-    compte_diag2(Board, L0, C0, P, Compte),
+    recule_diag2(Board, Ligne, Colonne, P, L0, C0),  % Trouve le début de la diagonale
+    compte_diag2(Board, L0, C0, P, Compte),           % Compte les pièces alignées
     Compte >= 4, !.
 
+% Recule en diagonale (↖) tant qu'on trouve la même pièce
 recule_diag2(Board, L, C, P, L0, C0) :-
     L1 is L + 1,
     C1 is C - 1,
     L1 =< 6, C1 >= 1,
     piece_a(Board, L1, C1, P), !,
     recule_diag2(Board, L1, C1, P, L0, C0).
-recule_diag2(_, L, C, _, L, C).
+recule_diag2(_, L, C, _, L, C).  % Cas de base: on ne peut plus reculer
 
+% Lance le comptage depuis le début de la diagonale
 compte_diag2(Board, L, C, P, Count) :-
     avance_diag2(Board, L, C, P, 1, Count).
 
+% Avance en diagonale (↘) et compte les pièces identiques consécutives
 avance_diag2(Board, L, C, P, Acc, Count) :-
     L1 is L - 1,
     C1 is C + 1,
@@ -177,7 +199,7 @@ avance_diag2(Board, L, C, P, Acc, Count) :-
     piece_a(Board, L1, C1, P), !,
     Acc1 is Acc + 1,
     avance_diag2(Board, L1, C1, P, Acc1, Count).
-avance_diag2(_, _, _, _, Count, Count).
+avance_diag2(_, _, _, _, Count, Count).  % Cas de base: on ne peut plus avancer
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Plateau plein
