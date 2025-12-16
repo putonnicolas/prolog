@@ -376,3 +376,56 @@ test(ia_niveau1_block_autre) :-
     Move == 4.  % L'IA doit jouer en colonne 4 pour bloquer
 
 :- end_tests(puissance4_tests).
+
+% === Tests IA Minimax ===
+
+test(ia_minimax_validity) :-
+    % Vérifier que l'IA minimax renvoie un coup valide
+    user:plateau_initial(Board),
+    user:ia_minimax(Board, Move, 2),
+    between(1, 7, Move),
+    user:colonne_disponible(Board, Move).
+
+test(ia_minimax_win_priority) :-
+    % Vérifier que l'IA privilégie un coup gagnant immédiat
+    Board = [
+        [o, o, o],
+        [x, x],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:ia_minimax(Board, Move, 4),
+    Move == 1.
+
+test(ia_minimax_block_priority) :-
+    % Vérifier que l'IA bloque l'adversaire en priorité
+    Board = [
+        [x, x, x],
+        [o, o],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:ia_minimax(Board, Move, 4),
+    Move == 1.
+
+test(ia_minimax_depth_effect) :-
+    % Vérifier que la profondeur influence les choix
+    Board = [
+        [x],
+        [o],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
+    user:ia_minimax(Board, Move1, 1),
+    user:ia_minimax(Board, Move2, 4),
+    % À profondeur 1, l'IA pourrait choisir différemment qu'à profondeur 4
+    Move1 \== Move2.  % Ce test pourrait échouer si les deux profondeurs donnent le même résultat optimal
