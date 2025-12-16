@@ -6,7 +6,6 @@ ia_random(Board, Move):-
     repeat,                          % recommencer jusqu'à ce qu'on trouve
     random(1, 8, Move),              % entre 1 et 7 (8 exclu)
     colonne_disponible(Board, Move),  % si la colonne est dispo
-    write('IA joue la colonne : '), writeln(Move),
     !.   							 % break
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
