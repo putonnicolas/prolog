@@ -19,8 +19,8 @@ Quitter Prolog :
 ```
 
 ## 2) Structure du projet
-- main.pl : boucle de jeu, changement de joueur, lancement de la partie.
-- utils.pl : gestion du plateau (affichage, coups, victoire, plateau plein).
+- main.pl : boucle de jeu, lancement de la partie.
+- utils.pl : gestion du plateau (affichage, coups, victoire, plateau plein), changement de joueur.
 - ia_minimax.pl : IA minimax.
 - ia_naive.pl : IA simples.
 - load.pl : point d’entrée pour charger tous les fichiers.
