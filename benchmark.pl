@@ -1,10 +1,11 @@
 % AI benchmarking harness for Puissance4
 % Usage examples:
-% ?- [ai_bench].
-% ?- bench_games(random, minimax, 0, 4, 100, Stats).
-% ?- bench_games(niveau1, minimax, 0, 3, 200, Stats).
+% ?- [benchmark].
+% ?- bench_games(AI1, AI2, depth1, depth2, n_games, Stats).
+% Available for AIs: random, naive, niveau1, minimax
 
-% Declarations to avoid editor warnings for predicates defined in other files
+
+%%%%%% Declarations to avoid editor warnings for predicates defined in other files
 :- dynamic ia_random/2.
 :- dynamic ia_naive/2.
 :- dynamic ia_niveau1/2.
@@ -16,8 +17,6 @@
 :- dynamic piece_a/4.
 :- dynamic plateau_plein/1.
 
-
-:- use_module(library(lists)).
 
 % Dispatch AI move by name
 ai_move(random, Board, _Player, _Depth, Move) :-
@@ -43,7 +42,7 @@ play_one_game(AI_X, AI_O, DepthX, DepthO, Starter, Winner, Moves) :-
     ( Starter == o -> Curr = o ; Curr = x ),
     ( play_loop(B0, Curr, AI_X, AI_O, DepthX, DepthO, 0, Winner, Moves)
     -> true
-    ;  writeln('DEBUG: play_loop failed for play_one_game/7 — returning draw,0'), Winner = draw, Moves = 0
+    ;  writeln('ERREUR: play_loop failed for play_one_game/7'), Winner = draw, Moves = 0
     ).
 
 play_loop(Board, _Curr, _AIx, _AIo, _Dx, _Do, Count, Winner, Count) :-
@@ -99,13 +98,24 @@ bench_games_loop(N, AI_X, AI_O, Dx, Do, Acc, I, Final) :-
 bench_depth_sweep(AI, Opp, Depths, N, Results) :-
     maplist({AI,Opp,N}/[D,Stat]>>bench_games(AI, Opp, D, 0, N, Stat), Depths, Results).
 
-% Helper to pretty print stats
-print_stats(Stats) :-
-    format('~w vs ~w (depths ~w/~w) - games: ~w~n', [Stats.ai_x, Stats.ai_o, Stats.depth_x, Stats.depth_o, Stats.games]),
-    format('wins_x: ~w, wins_o: ~w, draws: ~w, avg_moves: ~2f~n', [Stats.wins_x, Stats.wins_o, Stats.draws, Stats.avg_moves]).
+%%%%% Affichage des statistiques %%%%%%
+print_stats(S) :-
+    format('~n====================================~n'),
+    format('        PUISSANCE 4 : BENCHMARK~n'),
+    format('====================================~n'),
+    format('AI X : ~w (depth ~w)~n', [S.ai_x, S.depth_x]),
+    format('AI O : ~w (depth ~w)~n~n', [S.ai_o, S.depth_o]),
+    format('Games played : ~w~n', [S.games]),
+    format('Wins X       : ~w~n', [S.wins_x]),
+    format('Wins O       : ~w~n', [S.wins_o]),
+    format('Draws        : ~w~n', [S.draws]),
+    format('Avg. moves   : ~2f~n', [S.avg_moves]),
+    format('====================================~n').
 
-% Example runners
-% ?- bench_games(random, minimax, 0, 4, 100, S), print_stats(S).
-% ?- bench_games(niveau1, minimax, 0, 3, 200, S), print_stats(S).
-% ?- bench_depth_sweep(minimax, random, [1,2,3,4], 100, Results).% returns list of stats
+
+
+
+% Exemple: 
+% ?- bench_games(random, minimax, 0, 2, 10, S), print_stats(S).
+
 
