@@ -33,14 +33,13 @@ obtenir_poid(L, C, Valeur) :-
 %% POINT D'ENTRÉE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ia_minimax(Board, Colonne, Depth) :-
-    max_player(Player),
-    changePlayer(Player, Opp),
+ia_minimax(Board, Colonne, Depth, AIPlayer) :-
+    changePlayer(AIPlayer, Opp),
     findall(Col, colonne_disponible(Board, Col), Columns), % Chercher tous les coups jouables
     
     % 1. Chercher coup gagnant
     (   member(Col, Columns), % on test pour chaque coup possible 
-        jouer_coup(Board, Col, Player, TestBoard), % s'il permettrait de gagner
+        jouer_coup(Board, Col, AIPlayer, TestBoard), % s'il permettrait de gagner
         win(TestBoard) ->
         Colonne = Col, !
     
@@ -51,8 +50,8 @@ ia_minimax(Board, Colonne, Depth) :-
         Colonne = Col, !
     
     % 3. Minimax
-    ;   evaluer_coups(Columns, Depth, Player, Board, ScoredMoves),
-        meilleur_coup(Player, ScoredMoves, Colonne)
+    ;   evaluer_coups(Columns, Depth, AIPlayer, AIPlayer, Board, ScoredMoves),
+        meilleur_coup(AIPlayer, AIPlayer, ScoredMoves, Colonne)
     ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,19 +59,19 @@ ia_minimax(Board, Colonne, Depth) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Évaluer tous les coups possibles à une profondeur donnée
-evaluer_coups([], _, _, _, []).
+evaluer_coups([], _, _, _, _, []).
 % Score-Col est une structure
-evaluer_coups([Col|Cols], Depth, Player, Board, [Score-Col|Rest]) :-
-    minimax(Board, Col, Player, Depth, Score),
-    evaluer_coups(Cols, Depth, Player, Board, Rest).
+evaluer_coups([Col|Cols], Depth, AIPlayer, Player, Board, [Score-Col|Rest]) :-
+    minimax(Board, Col, AIPlayer, Player, Depth, Score),
+    evaluer_coups(Cols, Depth, AIPlayer, Player, Board, Rest).
 
 %% Algorithme Minimax principal
-minimax(Board, Col, Player, Depth, Score) :-
+minimax(Board, Col, AIPlayer, Player, Depth, Score) :-
     jouer_coup(Board, Col, Player, NewBoard),
     
     % Cas terminaux
     (   win(NewBoard) ->
-        (   max_player(Player) ->
+        (   Player == AIPlayer ->
             % On ajoute Depth pour maximiser le choix de gagner au plus tôt
             Score is 1000 + Depth
         ;
@@ -84,7 +83,7 @@ minimax(Board, Col, Player, Depth, Score) :-
         Score is 0
     
     ;   Depth =< 0 ->
-        heuristique(NewBoard, Player, Score)
+        heuristique(NewBoard, AIPlayer, Score)
     
     % Récursion
     ;   changePlayer(Player, Opp),
@@ -95,8 +94,8 @@ minimax(Board, Col, Player, Depth, Score) :-
             Score is 0
         ;
             % Explorer la suite de la branche
-            evaluer_coups(NextCols, D1, Opp, NewBoard, Scored),
-            meilleur_score(Opp, Scored, Score)
+            evaluer_coups(NextCols, D1, AIPlayer, Opp, NewBoard, Scored),
+            meilleur_score(AIPlayer, Opp, Scored, Score)
         )
     ).
 
@@ -105,12 +104,14 @@ minimax(Board, Col, Player, Depth, Score) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Trouver le meilleur score dans une liste de scores
-meilleur_score(_, [], 0) :- !.
-meilleur_score(Player, Scored, Best) :-
+meilleur_score(_, _, [], 0) :- !.
+meilleur_score(AIPlayer, Player, Scored, Best) :-
     extraire_scores(Scored, Scores),
-    (   max_player(Player) ->
+    (   Player == AIPlayer ->
+        % Maximiser si c'est le tour de l'IA
         max_list(Scores, Best)
     ;
+        % Minimiser si c'est le tour de l'adversaire
         min_list(Scores, Best)
     ).
 
@@ -119,9 +120,9 @@ extraire_scores([], []).
 extraire_scores([S-_|R], [S|Ss]) :-
     extraire_scores(R, Ss).
 
-meilleur_coup(_, [], 4) :- !.
-meilleur_coup(Player, Scored, Col) :-
-    meilleur_score(Player, Scored, Best),
+meilleur_coup(_, _, [], 4) :- !.
+meilleur_coup(AIPlayer, Player, Scored, Col) :-
+    meilleur_score(AIPlayer, Player, Scored, Best),
     findall(C, member(Best-C, Scored), BestCols), % plusieurs colonnes peuvent avoir le même score
     (   % peu probable, mais si y'a pas de meilleur coup disponible on joue le 4
         BestCols = [] ->
@@ -138,9 +139,9 @@ meilleur_coup(Player, Scored, Col) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% quand l'IA évalue un plateau, elle calcule la somme des poids de ses pièces - celles adverses
-heuristique(Board, Player, Score) :-
-    changePlayer(Player, Opp),
-    calc_poids(Board, Player, PIA),
+heuristique(Board, AIPlayer, Score) :-
+    changePlayer(AIPlayer, Opp),
+    calc_poids(Board, AIPlayer, PIA),
     calc_poids(Board, Opp, PAdv),
     RawScore is PIA - PAdv, % différence > 0 : avantageux pour l'IA, < 0 : avantageux pour le player. 
     (   RawScore > 100 -> Score is 100
