@@ -13,13 +13,12 @@
 :- dynamic ia_random/2.
 :- dynamic ia_naive/2.
 :- dynamic ia_niveau1/2.
-:- dynamic ia_minimax/3.
-:- dynamic colonne_disponible/2.
+:- dynamic ia_minimax/4.
 :- dynamic jouer_coup/4.
 :- dynamic plateau_initial/1.
 :- dynamic win/3.
-:- dynamic piece_a/4.
 :- dynamic plateau_plein/1.
+:- dynamic changePlayer/2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Sélection du coup en fonction du type d’IA

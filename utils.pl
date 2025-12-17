@@ -1,5 +1,4 @@
-% Déclarations pour éviter les warnings d'éditeur (prédicats définis dans ia_naive.pl et ia_minimax.pl)
-:- dynamic ia_niveau1/2.  
+% Déclarations pour éviter les warnings d'éditeur (prédicats définis dans ia_naive.pl et ia_minimax.pl) 
 :- dynamic ia_minimax/4. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
