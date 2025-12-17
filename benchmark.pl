@@ -37,7 +37,7 @@ ai_move(naive, Board, _Player, _Depth, Move) :-
 ai_move(niveau1, Board, _Player, _Depth, Move) :-
     with_output_to(string(_), ia_niveau1(Board, Move)).
 
-ai_move(minimax, Board, Depth, Move) :-
+ai_move(minimax, Board, _Player, Depth, Move) :-
     with_output_to(string(_), ia_minimax(Board, Move, Depth)).
 
 
