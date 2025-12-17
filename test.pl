@@ -381,7 +381,7 @@ test(ia_niveau1_block_autre) :-
 test(ia_minimax_validity) :-
     % Vérifier que l'IA minimax renvoie un coup valide
     user:plateau_initial(Board),
-    user:ia_minimax(Board, Move, 2),
+    user:ia_minimax(Board, Move, 2, o),
     between(1, 7, Move),
     user:colonne_disponible(Board, Move).
 
@@ -396,7 +396,7 @@ test(ia_minimax_win_priority) :-
         [],
         []
     ],
-    user:ia_minimax(Board, Move, 4),
+    user:ia_minimax(Board, Move, 4, o),
     Move == 1.
 
 test(ia_minimax_block_priority) :-
@@ -410,7 +410,7 @@ test(ia_minimax_block_priority) :-
         [],
         []
     ],
-    user:ia_minimax(Board, Move, 4),
+    user:ia_minimax(Board, Move, 4, o),
     Move == 1.
 
 test(ia_minimax_depth_effect) :-
@@ -424,8 +424,8 @@ test(ia_minimax_depth_effect) :-
         [],
         []
     ],
-    user:ia_minimax(Board, Move1, 1),
-    user:ia_minimax(Board, Move2, 4),
+    user:ia_minimax(Board, Move1, 1, o),
+    user:ia_minimax(Board, Move2, 4, o),
     % À profondeur 1, l'IA pourrait choisir différemment qu'à profondeur 4
     Move1 \== Move2.  % Ce test pourrait échouer si les deux profondeurs donnent le même résultat optimal
 
