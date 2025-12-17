@@ -13,21 +13,22 @@
 
 max_player(o). % le joueur à maximiser est l'IA donc "o"
 
-% Matrice de pondération
+% Matrice de pondération (organisée par colonnes comme le Board)
 matrice_ponderation([
-    [3, 4, 5, 7, 5, 4, 3],
-    [4, 6, 8, 10, 8, 6, 4],
-    [5, 8, 11, 14, 11, 8, 5],
-    [5, 8, 11, 14, 11, 8, 5],
-    [4, 6, 8, 10, 8, 6, 4],
-    [3, 4, 5, 7, 5, 4, 3]
+    [3, 4, 5, 5, 4, 3],
+    [4, 6, 8, 8, 6, 4],
+    [5, 8, 11, 11, 8, 5],
+    [7, 10, 14, 14, 10, 7],
+    [5, 8, 11, 11, 8, 5],
+    [4, 6, 8, 8, 6, 4],
+    [3, 4, 5, 5, 4, 3]
 ]).
 
-% Retourne la valeur à la case C de la ligne L
+% Retourne la valeur à la case (L, C)
 obtenir_poid(L, C, Valeur) :-
     matrice_ponderation(Matrice),
-    nth1(L, Matrice, Liste_Ligne), % Récupère la ligne L de la matrice
-    nth1(C, Liste_Ligne, Valeur). % Récupère la colonne C de la ligne L et le met dans valeur 
+    nth1(C, Matrice, Liste_Colonne), % Récupère la colonne C de la matrice
+    nth1(L, Liste_Colonne, Valeur). % Récupère la ligne L de la colonne et le met dans valeur 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% POINT D'ENTRÉE
