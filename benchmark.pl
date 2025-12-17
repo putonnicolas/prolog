@@ -5,8 +5,7 @@
 
 % Exemples d’utilisation :
 % ?- [load].
-% ?- [benchmark].
-% ?- bench_games(random, naive, 0, 2, 10, S), print_stats(S).
+% ?- bench_games(random, minimax, 0, 2, 10, S), print_stats(S).
 
 
 %% Déclarations pour éviter les warnings d’éditeur (prédicats définis dans d’autres fichiers : utils, IA…)
@@ -45,8 +44,6 @@ ai_move(minimax, Board, Player, Depth, Move) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Lance une partie complète entre deux IA
-% Winner ∈ {x, o, draw}
-% Moves = nombre total de coups joués
 
 play_one_game(AI_X, AI_O, DepthX, DepthO, Starter, Winner, Moves) :-
     plateau_initial(Board),
