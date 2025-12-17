@@ -6,7 +6,7 @@
 % Exemples d’utilisation :
 % ?- [load].
 % ?- [benchmark].
-% ?- bench_games(random, minimax, 0, 2, 10, S), print_stats(S).
+% ?- bench_games(random, naive, 0, 2, 10, S), print_stats(S).
 
 
 %% Déclarations pour éviter les warnings d’éditeur (prédicats définis dans d’autres fichiers : utils, IA…)
@@ -40,28 +40,11 @@ ai_move(niveau1, Board, _Player, _Depth, Move) :-
 ai_move(minimax, Board, Depth, Move) :-
     with_output_to(string(_), ia_minimax(Board, Move, Depth)).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Sécurisation des coups
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% valid_move_or_first(+Board, +MoveIn, -MoveOut)
-% Vérifie si le coup proposé est valide
-% Sinon, joue la première colonne disponible
-
-valid_move_or_first(Board, MoveIn, MoveOut) :-
-    ( integer(MoveIn),
-      between(1, 7, MoveIn),
-      colonne_disponible(Board, MoveIn)
-    -> MoveOut = MoveIn
-    ;  findall(C, colonne_disponible(Board, C), Cs),
-       ( Cs = [H|_] -> MoveOut = H ; MoveOut = 1 )
-    ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Simulation d’une partie complète
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% play_one_game(+AI_X, +AI_O, +DepthX, +DepthO, +Starter, -Winner, -Moves)
 % Lance une partie complète entre deux IA
 % Winner ∈ {x, o, draw}
 % Moves = nombre total de coups joués
@@ -71,7 +54,7 @@ play_one_game(AI_X, AI_O, DepthX, DepthO, Starter, Winner, Moves) :-
     ( Starter == o -> Curr = o ; Curr = x ),
     ( play_loop(Board, Curr, AI_X, AI_O, DepthX, DepthO, 0, Winner, Moves)
     -> true
-    ;  writeln('ERREUR : play_loop a échoué'),
+    ;  writeln('ERREUR : play_loop a echoue'),
        Winner = draw,
        Moves = 0
     ).
@@ -80,46 +63,35 @@ play_one_game(AI_X, AI_O, DepthX, DepthO, Starter, Winner, Moves) :-
 %% Boucle récursive de jeu (sans affichage)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Cas 1 : un joueur a gagné
-play_loop(Board, _Curr, _AIx, _AIo, _Dx, _Do, Count, Winner, Count) :-
-    win(Board, L, C), !,
-    piece_a(Board, L, C, Winner).
-
-% Cas 2 : match nul (plateau plein)
-play_loop(Board, _Curr, _AIx, _AIo, _Dx, _Do, Count, draw, Count) :-
-    plateau_plein(Board), !.
-
-% Cas général : un joueur joue un coup, puis on continue
 play_loop(Board, Curr, AIx, AIo, Dx, Do, Count, Winner, Moves) :-
-    % Sélection de l’IA et de la profondeur selon le joueur courant
-    ( Curr == x -> AI = AIx, Depth = Dx
-    ; Curr == o -> AI = AIo, Depth = Do
-    ),
+    % Choisir le coup automatiquement
+    (Curr == x -> AI = AIx, Depth = Dx ; AI = AIo, Depth = Do),
+    ai_move(AI, Board, Curr, Depth, Move),
+    
+    % Appliquer le coup
+    jouer_coup(Board, Move, Curr, NewBoard),
 
-    % Récupération du coup proposé par l’IA
-    ( catch(ai_move(AI, Board, Curr, Depth, RawMove), _, fail)
-    -> true
-    ;  RawMove = _
-    ),
+    % Calcul de la ligne où la pièce est tombée
+    nth1(Move, NewBoard, ColonneJouee),
+    length(ColonneJouee, LigneJouee),
 
-    % Sécurisation du coup
-    valid_move_or_first(Board, RawMove, Move),
-
-    % Application du coup
-    ( jouer_coup(Board, Move, Curr, NewBoard)
-    -> Count1 is Count + 1,
-       ( Curr == x -> Next = o ; Next = x ),
-       play_loop(NewBoard, Next, AIx, AIo, Dx, Do, Count1, Winner, Moves)
-    ;  % Sécurité ultime si le coup échoue
-       Winner = draw,
-       Moves = Count
+    % Vérification victoire, plateau plein ou continuation
+    ( win(NewBoard, LigneJouee, Move) ->
+        Winner = Curr,
+        Moves is Count + 1
+    ; plateau_plein(NewBoard) ->
+        Winner = draw,
+        Moves is Count + 1
+    ;
+        Count1 is Count + 1,
+        changePlayer(Curr, Next),
+        play_loop(NewBoard, Next, AIx, AIo, Dx, Do, Count1, Winner, Moves)
     ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Lancement de plusieurs parties et agrégation des résultats
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% bench_games(+AI_X, +AI_O, +DepthX, +DepthO, +N, -Stats)
 % Lance N parties et retourne les statistiques globales
 
 bench_games(AI_X, AI_O, DepthX, DepthO, N, Stats) :-
